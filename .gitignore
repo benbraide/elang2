@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/elang/elang/x64/Debug/elang.tlog
+/elang/elang/x64/Debug
+/elang/.vs/elang/v15
+/elang/elang/elang.vcxproj
+/elang/elang/elang.vcxproj.filters
+/elang/elang/elang.vcxproj.user
+/elang/x64/Debug
+/elang/elang.sln
