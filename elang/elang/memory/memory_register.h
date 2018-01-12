@@ -70,24 +70,6 @@ namespace elang::memory{
 		size_type size_;
 		char *data_;
 	};
-
-	template <class value_type>
-	class typed_memory_register : public memory_register{
-	public:
-		typedef value_type value_type;
-
-		explicit typed_memory_register(const std::string &name)
-			: memory_register(nullptr, name, sizeof(value_type), typed_data_){
-			std::memset(typed_data_, 0, sizeof(value_type));
-		}
-
-		virtual bool is_floating_point() const override{
-			return std::is_floating_point_v<value_type>;
-		}
-
-	protected:
-		char typed_data_[sizeof(value_type)];
-	};
 }
 
 #endif /* !ELANG_MEMORY_REGISTER_H */
