@@ -7,6 +7,8 @@ namespace elang::common{
 	enum class error{
 		nil,
 		register_not_found,
+		stack_overflow,
+		stack_underflow,
 	};
 }
 
