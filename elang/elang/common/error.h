@@ -9,6 +9,9 @@ namespace elang::common{
 		register_not_found,
 		stack_overflow,
 		stack_underflow,
+		byte_code_bad_source_operand_type,
+		byte_code_bad_destination_operand_type,
+		byte_code_unknown_operand_type,
 	};
 }
 
