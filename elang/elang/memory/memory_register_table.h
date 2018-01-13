@@ -13,6 +13,7 @@ namespace elang::memory{
 	enum class register_flag : unsigned int{
 		nil				= (0 << 0x0000),
 		zero			= (1 << 0x0000),
+		less			= (1 << 0x0001),
 	};
 
 	class register_table{
@@ -26,6 +27,10 @@ namespace elang::memory{
 		memory_register *find(const std::string &key) const;
 
 		memory_register *find(std::size_t index) const;
+
+		memory_register *stack_pointer() const;
+
+		memory_register *instruction_pointer() const;
 
 		void set_flag(register_flag flag);
 
@@ -47,6 +52,8 @@ namespace elang::memory{
 		index_map_type index_map_;
 		register_flag flags_;
 		std::unique_ptr<__int64[]> data_;
+		memory_register *stack_pointer_;
+		memory_register *instruction_pointer_;
 	};
 
 	ELANG_MAKE_OPERATORS(register_flag);

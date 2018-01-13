@@ -12,6 +12,30 @@ elang::memory::memory_register::memory_register(memory_register *parent, const s
 
 elang::memory::memory_register::~memory_register() = default;
 
+void elang::memory::memory_register::write(const char *value, size_type size){
+	if (size == 0u)//Compute size
+		size = strlen(value);
+
+	if (size < size_){//Copy and zero higher bits
+		memcpy(data_, value, size);
+		memset((data_ + size), 0, (size_ - size));
+	}
+	else//Copy applicable bits
+		memcpy(data_, value, size_);
+}
+
+void elang::memory::memory_register::read(char *value, size_type size) const{
+	if (size == 0u)//Use register's size
+		size = size_;
+
+	if (size > size_){//Copy and zero higher bits
+		memcpy(value, data_, size_);
+		memset((value + size_), 0, (size - size_));
+	}
+	else//Copy applicable bits
+		memcpy(value, data_, size_);
+}
+
 elang::memory::memory_register *elang::memory::memory_register::match(size_type size) const{
 	if (size < size_)//Match with low child
 		return ((low_ == nullptr) ? nullptr : low_->match(size));

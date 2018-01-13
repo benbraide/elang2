@@ -18,6 +18,9 @@ elang::memory::register_table::register_table()
 
 	add_qword_("r", 9, 15, offset, index);
 	add_float_("xmm", 0, 7, offset, index);
+
+	stack_pointer_ = map_["rsp"].get();
+	instruction_pointer_ = map_["rip"].get();
 }
 
 elang::memory::memory_register *elang::memory::register_table::find(const std::string &key) const{
@@ -28,6 +31,14 @@ elang::memory::memory_register *elang::memory::register_table::find(const std::s
 elang::memory::memory_register *elang::memory::register_table::find(std::size_t index) const{
 	auto entry = index_map_.find(index);
 	return ((entry == index_map_.end()) ? nullptr : entry->second);
+}
+
+elang::memory::memory_register *elang::memory::register_table::stack_pointer() const{
+	return stack_pointer_;
+}
+
+elang::memory::memory_register *elang::memory::register_table::instruction_pointer() const{
+	return instruction_pointer_;
 }
 
 void elang::memory::register_table::set_flag(register_flag flag){

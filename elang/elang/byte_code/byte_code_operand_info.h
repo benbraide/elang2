@@ -53,9 +53,12 @@ namespace elang::byte_code{
 
 				auto offset = 0i64;
 				for (auto count = fmt->value; count > 0u; --count)
-					offset += extract_source<__int64>(data, base_ptr, reg_tbl);
+					offset += extract_source<__int64>(data, base_ptr, reg_tbl, true);
 
-				return (base_ptr + offset);
+				auto value = target_type();
+				memcpy(&value, (base_ptr + offset), sizeof(target_type));
+
+				return value;
 			}
 			case type::immediate:
 				return copy<target_type>(data, fmt->value);
@@ -65,10 +68,10 @@ namespace elang::byte_code{
 				break;
 			}
 
+			--data;
 			throw common::error::byte_code_unknown_operand_type;
 		}
 
-		template <std::size_t size>
 		static char *extract_destination(char *&data, char *base_ptr, memory::register_table &reg_tbl){
 			auto fmt = reinterpret_cast<format *>(data++);
 			switch (fmt->type){
@@ -78,27 +81,25 @@ namespace elang::byte_code{
 				if (reg == nullptr)//Error
 					throw common::error::register_not_found;
 
-				auto parent = reg->parent();
-				if (parent != nullptr && parent->low_child() == reg && (reg = reg->match(size)) == nullptr)
-					throw common::error::register_not_found;//Error
-
 				return reg->data();
 			}
 			case type::memory:
 			{
 				auto offset = 0i64;
 				for (auto count = fmt->value; count > 0u; --count)
-					offset += extract_source<__int64>(data, base_ptr, reg_tbl);
+					offset += extract_source<__int64>(data, base_ptr, reg_tbl, true);
 				return (base_ptr + offset);
 			}
 			case type::immediate:
 			case type::compressed_immediate:
+				--data;
 				throw common::error::byte_code_bad_destination_operand_type;
 				break;
 			default:
 				break;
 			}
 
+			--data;
 			throw common::error::byte_code_unknown_operand_type;
 		}
 	};

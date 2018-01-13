@@ -12,6 +12,8 @@ namespace elang::common{
 		byte_code_bad_source_operand_type,
 		byte_code_bad_destination_operand_type,
 		byte_code_unknown_operand_type,
+		byte_code_bad_operand_size,
+		byte_code_unknown_instruction,
 	};
 }
 

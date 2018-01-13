@@ -27,23 +27,28 @@ namespace elang::memory{
 
 		template <typename value_type>
 		void write(value_type value){
-			if (sizeof(value_type) < size_){//Copy and zero higher bits
-				memcpy(data_, &value, sizeof(value_type));
-				memset((data_ + sizeof(value_type)), 0, (size_ - sizeof(value_type)));
-			}
-			else//Copy applicable bits
-				memcpy(data_, &value, size_);
+			write(reinterpret_cast<const char *>(&value), sizeof(value_type));
+		}
+
+		void write(const char *value, size_type size = 0);
+
+		template <typename value_type>
+		void write(const value_type *value, size_type size){
+			write(reinterpret_cast<const char *>(value), (size * sizeof(value_type)));
 		}
 
 		template <typename target_type>
 		target_type read() const{
 			auto target = target_type();
-			if (sizeof(&target) > size_){//Copy and zero higher bits
-				memcpy(&target, data_, size_);
-				memset(((&target) + size_), 0, (sizeof(target) - size_));
-			}
-			else//Copy applicable bits
-				memcpy(&target, data_, size_);
+			read(reinterpret_cast<char *>(&target), sizeof(target_type));
+			return target;
+		}
+
+		void read(char *value, size_type size = 0) const;
+
+		template <typename value_type>
+		void read(value_type *value, size_type size) const{
+			read(reinterpret_cast<char *>(value), (size * sizeof(value_type)));
 		}
 
 		virtual memory_register *match(size_type size) const;
