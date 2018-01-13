@@ -42,8 +42,8 @@ namespace elang::byte_code{
 			case type::register_:
 			{
 				auto reg = reg_tbl.find(fmt->value);
-				if (reg == nullptr || (reg = reg->match(size)) == nullptr)
-					throw common::error::register_not_found;//Error
+				if (reg == nullptr)//Error
+					throw common::error::register_not_found;
 				return reg->read<target_type>();
 			}
 			case type::memory:
@@ -75,8 +75,13 @@ namespace elang::byte_code{
 			case type::register_:
 			{
 				auto reg = reg_tbl.find(fmt->value);
-				if (reg == nullptr || (reg = reg->match(size)) == nullptr)
+				if (reg == nullptr)//Error
+					throw common::error::register_not_found;
+
+				auto parent = reg->parent();
+				if (parent != nullptr && parent->low_child() == reg && (reg = reg->match(size)) == nullptr)
 					throw common::error::register_not_found;//Error
+
 				return reg->data();
 			}
 			case type::memory:

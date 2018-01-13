@@ -37,11 +37,11 @@ namespace elang::memory{
 
 	private:
 		void add_(const std::string &name, const std::string &alias, const std::string &_32, const std::string &_16,
-			const std::string &low, const std::string &high, unsigned __int64 &offset);
+			const std::string &low, const std::string &high, unsigned __int64 &offset, unsigned __int64 &index);
 
-		void add_qword_(const std::string &prefix, int from, int to, unsigned __int64 &offset);
+		void add_qword_(const std::string &prefix, int from, int to, unsigned __int64 &offset, unsigned __int64 &index);
 
-		void add_float_(const std::string &prefix, int from, int to, unsigned __int64 &offset);
+		void add_float_(const std::string &prefix, int from, int to, unsigned __int64 &offset, unsigned __int64 &index);
 
 		map_type map_;
 		index_map_type index_map_;

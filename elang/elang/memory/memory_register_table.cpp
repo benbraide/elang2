@@ -2,22 +2,22 @@
 
 elang::memory::register_table::register_table()
 	: flags_(register_flag::nil), data_(new __int64[24]){
-	auto offset = 0ui64;
+	auto offset = 0ui64, index = 0ui64;
 	memset(data_.get(), 0, (sizeof(__int64) * 24));
 
-	add_("rax", "r0", "eax", "ax", "al", "ah", offset);
-	add_("rbx", "r1", "ebx", "bx", "bl", "bh", offset);
-	add_("rcx", "r2", "ecx", "cx", "cl", "ch", offset);
-	add_("rdx", "r3", "edx", "dx", "dl", "dh", offset);
+	add_("rax", "r0", "eax", "ax", "al", "ah", offset, index);
+	add_("rbx", "r1", "ebx", "bx", "bl", "bh", offset, index);
+	add_("rcx", "r2", "ecx", "cx", "cl", "ch", offset, index);
+	add_("rdx", "r3", "edx", "dx", "dl", "dh", offset, index);
 
-	add_("rsp", "r4", "esp", "sp", "spl", "sph", offset);
-	add_("rbp", "r5", "ebp", "bp", "bpl", "bph", offset);
-	add_("rsi", "r6", "esi", "si", "sil", "sih", offset);
-	add_("rdi", "r7", "edi", "di", "dil", "dih", offset);
-	add_("rip", "r8", "eip", "ip", "ipl", "iph", offset);
+	add_("rsp", "r4", "esp", "sp", "spl", "sph", offset, index);
+	add_("rbp", "r5", "ebp", "bp", "bpl", "bph", offset, index);
+	add_("rsi", "r6", "esi", "si", "sil", "sih", offset, index);
+	add_("rdi", "r7", "edi", "di", "dil", "dih", offset, index);
+	add_("rip", "r8", "eip", "ip", "ipl", "iph", offset, index);
 
-	add_qword_("r", 9, 15, offset);
-	add_float_("xmm", 0, 7, offset);
+	add_qword_("r", 9, 15, offset, index);
+	add_float_("xmm", 0, 7, offset, index);
 }
 
 elang::memory::memory_register *elang::memory::register_table::find(const std::string &key) const{
@@ -53,8 +53,8 @@ std::size_t elang::memory::register_table::index(const memory_register &reg) con
 }
 
 void elang::memory::register_table::add_(const std::string &name, const std::string &alias, const std::string &_32,
-	const std::string &_16, const std::string &low, const std::string &high, unsigned __int64 &offset){
-	auto value = std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset)));
+	const std::string &_16, const std::string &low, const std::string &high, unsigned __int64 &offset, unsigned __int64 &index){
+	auto value = std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset++)));
 
 	auto _32_value	= std::make_shared<memory_register>(value.get(), _32, sizeof(__int32), value->data());
 	auto _16_value	= std::make_shared<memory_register>(_32_value.get(), _16, sizeof(__int16), _32_value->data());
@@ -72,31 +72,32 @@ void elang::memory::register_table::add_(const std::string &name, const std::str
 	map_[(alias + "d")]	= _32_value;
 	map_[alias]			= value;
 
-	index_map_[offset++] = value.get();
+	index_map_[index++] = value.get();
+	index_map_[index++] = map_[high].get();
 }
 
-void elang::memory::register_table::add_qword_(const std::string &prefix, int from, int to, unsigned __int64 &offset){
+void elang::memory::register_table::add_qword_(const std::string &prefix, int from, int to, unsigned __int64 &offset, unsigned __int64 &index){
 	std::string name;
 
 	register_ptr_type value;
 	for (; from <= to; ++from){//Add entries
 		name = (prefix + std::to_string(from));
-		value = std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset)));
+		value = std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset++)));
 
 		map_[(name + "d")]	= std::make_shared<memory_register>(value.get(), (name + "d"), sizeof(__int32), value->data());
 		map_[(name + "w")]	= std::make_shared<memory_register>(map_[(name + "d")].get(), (name + "w"), sizeof(__int16), map_[(name + "d")]->data());
 		map_[(name + "b")]	= std::make_shared<memory_register>(map_[(name + "w")].get(), (name + "b"), sizeof(__int8), map_[(name + "w")]->data());
 		map_[name]			= value;
-		index_map_[offset++]= value.get();
+		index_map_[index++]	= value.get();
 	}
 }
 
-void elang::memory::register_table::add_float_(const std::string &prefix, int from, int to, unsigned __int64 &offset){
+void elang::memory::register_table::add_float_(const std::string &prefix, int from, int to, unsigned __int64 &offset, unsigned __int64 &index){
 	std::string name;
 	for (; from <= to; ++from){
 		name = (prefix + std::to_string(from));
-		map_[name]			= std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset)));
+		map_[name]			= std::make_shared<memory_register>(nullptr, name, sizeof(__int64), (reinterpret_cast<char *>(data_.get() + offset++)));
 		map_[(name + "d")]	= std::make_shared<memory_register>(map_[name].get(), (name + "d"), sizeof(float), map_[name]->data());
-		index_map_[offset++]= map_[name].get();
+		index_map_[index++]	= map_[name].get();
 	}
 }
