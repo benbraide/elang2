@@ -42,7 +42,7 @@ namespace elang::byte_code{
 				reg_tbl.set_flag(memory::register_flag::zero);
 			}
 
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 

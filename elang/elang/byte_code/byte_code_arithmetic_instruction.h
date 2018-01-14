@@ -64,7 +64,7 @@ namespace elang::byte_code{
 			}
 
 			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 
@@ -125,7 +125,7 @@ namespace elang::byte_code{
 			}
 
 			memcpy(destination, &left, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 
 		template <typename target_type>
@@ -160,7 +160,7 @@ namespace elang::byte_code{
 			}
 
 			memcpy(destination, &left, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 
 			return true;
 		}

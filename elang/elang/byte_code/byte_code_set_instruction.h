@@ -38,7 +38,7 @@ namespace elang::byte_code{
 				static_cast<target_type>(1) : static_cast<target_type>(0));
 
 			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 

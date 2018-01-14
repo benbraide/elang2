@@ -37,7 +37,7 @@ namespace elang::byte_code{
 				value = operand_info::extract_source<target_type>(ptr, base_ptr, reg_tbl);
 
 			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 

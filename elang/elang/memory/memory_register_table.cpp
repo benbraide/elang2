@@ -19,6 +19,7 @@ elang::memory::register_table::register_table()
 	add_qword_("r", 9, 15, offset, index);
 	add_float_("xmm", 0, 7, offset, index);
 
+	base_pointer_ = map_["rbp"].get();
 	stack_pointer_ = map_["rsp"].get();
 	instruction_pointer_ = map_["rip"].get();
 }
@@ -31,6 +32,10 @@ elang::memory::memory_register *elang::memory::register_table::find(const std::s
 elang::memory::memory_register *elang::memory::register_table::find(std::size_t index) const{
 	auto entry = index_map_.find(index);
 	return ((entry == index_map_.end()) ? nullptr : entry->second);
+}
+
+elang::memory::memory_register *elang::memory::register_table::base_pointer() const{
+	return base_pointer_;
 }
 
 elang::memory::memory_register *elang::memory::register_table::stack_pointer() const{

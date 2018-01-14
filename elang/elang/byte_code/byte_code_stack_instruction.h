@@ -9,14 +9,16 @@ namespace elang::byte_code{
 	struct push_instruction{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			stack.push(size, operand_info::extract_destination(ptr, base_ptr, reg_tbl));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.stack_pointer()->write(reinterpret_cast<__int64>(stack.ptr()));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 
 	struct pop_instruction{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			stack.pop(size, operand_info::extract_destination(ptr, base_ptr, reg_tbl));
-			reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+			reg_tbl.stack_pointer()->write(reinterpret_cast<__int64>(stack.ptr()));
+			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 		}
 	};
 

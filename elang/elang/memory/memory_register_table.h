@@ -28,6 +28,8 @@ namespace elang::memory{
 
 		memory_register *find(std::size_t index) const;
 
+		memory_register *base_pointer() const;
+
 		memory_register *stack_pointer() const;
 
 		memory_register *instruction_pointer() const;
@@ -52,6 +54,7 @@ namespace elang::memory{
 		index_map_type index_map_;
 		register_flag flags_;
 		std::unique_ptr<__int64[]> data_;
+		memory_register *base_pointer_;
 		memory_register *stack_pointer_;
 		memory_register *instruction_pointer_;
 	};

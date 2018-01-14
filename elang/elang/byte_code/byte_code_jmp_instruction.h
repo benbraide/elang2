@@ -39,7 +39,7 @@ namespace elang::byte_code{
 				if (comparison::compare(*info, flag))
 					reg_tbl.instruction_pointer()->write(value);
 				else//Failed test
-					reg_tbl.instruction_pointer()->write(*reinterpret_cast<__int64 *>(ptr));
+					reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
 			}
 			else//Unconditional jump
 				reg_tbl.instruction_pointer()->write(value);

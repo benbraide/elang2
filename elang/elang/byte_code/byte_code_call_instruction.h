@@ -27,7 +27,7 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void call(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
 			auto value = operand_info::extract_source<target_type>(ptr, base_ptr, reg_tbl);
-			stack.push_value(*reinterpret_cast<__int64 *>(ptr));//Push return address onto stack
+			stack.push_value(reinterpret_cast<__int64>(ptr));//Push return address onto stack
 			reg_tbl.instruction_pointer()->write(value);//Jump to address
 		}
 	};
