@@ -3,6 +3,10 @@
 #ifndef ELANG_BYTE_CODE_TRANSLATOR_H
 #define ELANG_BYTE_CODE_TRANSLATOR_H
 
+#include <boost/iostreams/device/mapped_file.hpp>
+
+#include "../common/file_resource.h"
+
 #include "byte_code_arithmetic_instruction.h"
 #include "byte_code_call_instruction.h"
 #include "byte_code_cmp_instruction.h"
@@ -18,11 +22,11 @@
 namespace elang::byte_code{
 	class translator{
 	public:
-		static void translate_file(const std::string &path);
+		static void translate_file(const std::string &file, const std::string &dir = "test/bcd");
 
-		static void translate(char *ptr);
+		static void translate(const char *ptr);
 
-		static void translate(char *base_ptr, unsigned __int64 entry);
+		static void translate(const char *base_ptr, unsigned __int64 entry);
 
 		static bool running_main;
 		static thread_local bool running_thread;

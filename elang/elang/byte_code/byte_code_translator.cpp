@@ -1,10 +1,18 @@
 #include "byte_code_translator.h"
 
-void elang::byte_code::translator::translate_file(const std::string &path){
-	
+void elang::byte_code::translator::translate_file(const std::string &file, const std::string &dir){
+	auto path = common::file_resource::resolve(dir, file, "ebcd");
+	if (!boost::filesystem::exists(path))
+		throw common::error::file_not_found;
+
+	boost::iostreams::mapped_file source(path, boost::iostreams::mapped_file::readonly);
+	if (!source.is_open())
+		throw common::error::file_not_found;
+
+	translate(source.const_begin());
 }
 
-void elang::byte_code::translator::translate(char *ptr){
+void elang::byte_code::translator::translate(const char *ptr){
 	if (running_main)
 		return;//Already running
 
@@ -34,7 +42,7 @@ void elang::byte_code::translator::translate(char *ptr){
 	translate(ptr, start_address);
 }
 
-void elang::byte_code::translator::translate(char *base_ptr, unsigned __int64 entry){
+void elang::byte_code::translator::translate(const char *base_ptr, unsigned __int64 entry){
 	if (running_thread)
 		return;//Already running
 

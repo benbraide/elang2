@@ -6,6 +6,7 @@
 namespace elang::common{
 	enum class error{
 		nil,
+		file_not_found,
 		memory_read_access_violation,
 		memory_write_access_violation,
 		memory_out_of_space,
