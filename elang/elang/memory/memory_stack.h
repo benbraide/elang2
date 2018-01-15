@@ -38,6 +38,8 @@ namespace elang::memory{
 			return value;
 		}
 
+		size_type size() const;
+
 		char *ptr() const;
 
 	private:

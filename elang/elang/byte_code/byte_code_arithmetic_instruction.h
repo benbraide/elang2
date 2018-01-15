@@ -15,8 +15,8 @@ namespace elang::byte_code{
 		and_,
 		xor_,
 		or_,
-		lal,
-		lar,
+		sal,
+		sar,
 		not,
 		inc,
 		dec,
@@ -113,10 +113,10 @@ namespace elang::byte_code{
 			case operator_id::or_:
 				left |= right;
 				break;
-			case operator_id::lal:
+			case operator_id::sal:
 				left <<= right;
 				break;
-			case operator_id::lar:
+			case operator_id::sar:
 				left >>= right;
 				break;
 			default:
@@ -503,58 +503,58 @@ namespace elang::byte_code{
 	};
 
 	template <>
-	struct instruction<id::lalb>{
+	struct instruction<id::salb>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1, operator_id::lal);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1, operator_id::sal);
 		}
 	};
 
 	template <>
-	struct instruction<id::lalw>{
+	struct instruction<id::salw>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2, operator_id::lal);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2, operator_id::sal);
 		}
 	};
 
 	template <>
-	struct instruction<id::lald>{
+	struct instruction<id::sald>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4, operator_id::lal);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4, operator_id::sal);
 		}
 	};
 
 	template <>
-	struct instruction<id::lalq>{
+	struct instruction<id::salq>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8, operator_id::lal);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8, operator_id::sal);
 		}
 	};
 
 	template <>
-	struct instruction<id::larb>{
+	struct instruction<id::sarb>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1, operator_id::lar);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1, operator_id::sar);
 		}
 	};
 
 	template <>
-	struct instruction<id::larw>{
+	struct instruction<id::sarw>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2, operator_id::lar);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2, operator_id::sar);
 		}
 	};
 
 	template <>
-	struct instruction<id::lard>{
+	struct instruction<id::sard>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4, operator_id::lar);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4, operator_id::sar);
 		}
 	};
 
 	template <>
-	struct instruction<id::larq>{
+	struct instruction<id::sarq>{
 		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8, operator_id::lar);
+			binary_arithmetic_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8, operator_id::sar);
 		}
 	};
 }

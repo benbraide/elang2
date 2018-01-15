@@ -43,6 +43,10 @@ char *elang::memory::stack::pop(memory_register &reg){
 	return pop(reg.size(), reg.data());
 }
 
+elang::memory::stack::size_type elang::memory::stack::size() const{
+	return size_;
+}
+
 char *elang::memory::stack::ptr() const{
 	return ptr_;
 }

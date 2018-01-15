@@ -1,12 +1,4 @@
-#include "byte_code/byte_code_arithmetic_instruction.h"
-#include "byte_code/byte_code_call_instruction.h"
-#include "byte_code/byte_code_cmp_instruction.h"
-#include "byte_code/byte_code_jmp_instruction.h"
-#include "byte_code/byte_code_lea_instruction.h"
-#include "byte_code/byte_code_mov_instruction.h"
-#include "byte_code/byte_code_set_instruction.h"
-#include "byte_code/byte_code_stack_instruction.h"
-#include "byte_code/byte_code_test_instruction.h"
+#include "byte_code/byte_code_translator.h"
 
 int main(){
 	elang::memory::register_table reg_tbl;

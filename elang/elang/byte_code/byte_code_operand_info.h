@@ -55,8 +55,11 @@ namespace elang::byte_code{
 				for (auto count = fmt->value; count > 0u; --count)
 					offset += extract_source<__int64>(data, base_ptr, reg_tbl, true);
 
+				if (offset <= 0)//Error
+					throw common::error::byte_code_memory_read_access_violation;
+
 				auto value = target_type();
-				memcpy(&value, (base_ptr + offset), sizeof(target_type));
+				memcpy(&value, correct_ptr(base_ptr + (offset - 1), base_ptr), sizeof(target_type));
 
 				return value;
 			}
@@ -93,7 +96,14 @@ namespace elang::byte_code{
 				auto offset = 0i64;
 				for (auto count = fmt->value; count > 0u; --count)
 					offset += extract_source<__int64>(data, base_ptr, reg_tbl, true);
-				return (base_ptr + offset);
+
+				if (offset <= 0)//Error
+					throw common::error::byte_code_memory_read_access_violation;
+
+				if (is_write_protected(offset))//Error
+					throw common::error::byte_code_memory_write_access_violation;
+
+				return correct_ptr(base_ptr + (offset - 1), base_ptr);
 			}
 			case type::offset:
 			case type::immediate:
@@ -105,6 +115,10 @@ namespace elang::byte_code{
 
 			throw common::error::byte_code_unknown_operand_type;
 		}
+
+		static bool is_write_protected(__int64 address);
+
+		static char *correct_ptr(char *ptr, char *base_ptr);
 	};
 }
 
