@@ -5,6 +5,7 @@
 
 #include "../common/error.h"
 
+#include "memory_table.h"
 #include "memory_register.h"
 
 namespace elang::memory{
@@ -12,7 +13,7 @@ namespace elang::memory{
 	public:
 		typedef std::size_t size_type;
 
-		explicit stack(size_type size);
+		stack(table &tbl, size_type size);
 
 		char *push(size_type size);
 
@@ -40,11 +41,12 @@ namespace elang::memory{
 
 		size_type size() const;
 
+		char *base() const;
+
 		char *ptr() const;
 
 	private:
-		size_type size_;
-		std::unique_ptr<char[]> data_;
+		table::block_type *block_;
 		char *ptr_;
 	};
 }

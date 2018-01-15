@@ -8,16 +8,16 @@
 
 namespace elang::byte_code{
 	struct set_instruction{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			switch (size){
 			case 1u://Byte
-				return set<__int8>(ptr, base_ptr, reg_tbl, stack);
+				return set<__int8>(mem_tbl, reg_tbl, stack);
 			case 2u://Word
-				return set<__int16>(ptr, base_ptr, reg_tbl, stack);
+				return set<__int16>(mem_tbl, reg_tbl, stack);
 			case 4u://Double Word
-				return set<__int32>(ptr, base_ptr, reg_tbl, stack);
+				return set<__int32>(mem_tbl, reg_tbl, stack);
 			case 8u://Quad Word
-				return set<__int64>(ptr, base_ptr, reg_tbl, stack);
+				return set<__int64>(mem_tbl, reg_tbl, stack);
 			default:
 				break;
 			}
@@ -26,47 +26,51 @@ namespace elang::byte_code{
 		}
 
 		template <typename target_type>
-		static void set(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			auto destination = operand_info::extract_destination(ptr, base_ptr, reg_tbl);
+		static void set(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			operand_info::destination_type dest;
+			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+
 			auto flag = '\0';
 			if (reg_tbl.has_flag(memory::register_flag::less))
 				flag = static_cast<char>(-1);
 			else if (!reg_tbl.has_flag(memory::register_flag::zero))
 				flag = static_cast<char>(1);
 
-			auto value = ((comparison::compare(*reinterpret_cast<comparison_info *>(ptr++), flag)) ?
+			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
+			reg_tbl.instruction_pointer()->write(iptr + 1);//Update
+
+			auto value = ((comparison::compare(*mem_tbl.read_bytes<comparison_info>(iptr), flag)) ?
 				static_cast<target_type>(1) : static_cast<target_type>(0));
 
-			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
+			operand_info::destination_query::write(dest, value);
 		}
 	};
 
 	template <>
 	struct instruction<id::setb>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			set_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			set_instruction::evaluate(mem_tbl, reg_tbl, stack, 1);
 		}
 	};
 
 	template <>
 	struct instruction<id::setw>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			set_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			set_instruction::evaluate(mem_tbl, reg_tbl, stack, 2);
 		}
 	};
 
 	template <>
 	struct instruction<id::setd>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			set_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			set_instruction::evaluate(mem_tbl, reg_tbl, stack, 4);
 		}
 	};
 
 	template <>
 	struct instruction<id::setq>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			set_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			set_instruction::evaluate(mem_tbl, reg_tbl, stack, 8);
 		}
 	};
 }

@@ -1,8 +1,8 @@
 #include "memory_stack.h"
 
-elang::memory::stack::stack(size_type size)
-	: size_(size), data_(new char[size]){
-	ptr_ = data_.get();
+elang::memory::stack::stack(table &tbl, size_type size)
+	: block_(tbl.allocate(size)){
+	ptr_ = block_->data.get();
 }
 
 char *elang::memory::stack::push(size_type size){
@@ -10,7 +10,7 @@ char *elang::memory::stack::push(size_type size){
 }
 
 char *elang::memory::stack::push(size_type size, const char *buffer){
-	if ((ptr_ + size) > (data_.get() + size_))
+	if (static_cast<size_type>(block_->size - (ptr_ - block_->data.get())) < size)
 		throw common::error::stack_overflow;
 
 	if (buffer != nullptr)//Copy data
@@ -29,7 +29,7 @@ char *elang::memory::stack::pop(size_type size){
 }
 
 char *elang::memory::stack::pop(size_type size, char *buffer){
-	if (ptr_ < (data_.get() + size))
+	if (static_cast<size_type>(ptr_ - block_->data.get()) < size)
 		throw common::error::stack_underflow;
 
 	ptr_ -= size;//Advance pointer
@@ -44,7 +44,11 @@ char *elang::memory::stack::pop(memory_register &reg){
 }
 
 elang::memory::stack::size_type elang::memory::stack::size() const{
-	return size_;
+	return block_->size;
+}
+
+char *elang::memory::stack::base() const{
+	return block_->data.get();
 }
 
 char *elang::memory::stack::ptr() const{

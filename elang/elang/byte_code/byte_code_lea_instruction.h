@@ -7,18 +7,18 @@
 
 namespace elang::byte_code{
 	struct lea_instruction{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			switch (size){
 			case 1u://Byte
-				return load<__int8>(ptr, base_ptr, reg_tbl);
+				return load<__int8>(mem_tbl, reg_tbl);
 			case 2u://Word
-				return load<__int16>(ptr, base_ptr, reg_tbl);
+				return load<__int16>(mem_tbl, reg_tbl);
 			case 4u://Double Word
-				return load<__int32>(ptr, base_ptr, reg_tbl);
+				return load<__int32>(mem_tbl, reg_tbl);
 			case 8u://Quad Word
-				return load<__int64>(ptr, base_ptr, reg_tbl);
+				return load<__int64>(mem_tbl, reg_tbl);
 			case 10u://Float
-				return load<long double>(ptr, base_ptr, reg_tbl);
+				return load<long double>(mem_tbl, reg_tbl);
 			default:
 				break;
 			}
@@ -27,45 +27,45 @@ namespace elang::byte_code{
 		}
 
 		template <typename target_type>
-		static void load(char *&ptr, char *base_ptr, memory::register_table &reg_tbl){
-			auto destination = operand_info::extract_destination(ptr, base_ptr, reg_tbl);
+		static void load(memory::table &mem_tbl, memory::register_table &reg_tbl){
+			operand_info::destination_type dest;
+			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
 
-			target_type value;
-			if (reinterpret_cast<operand_info::format *>(ptr)->type == operand_info::type::memory)
-				value = static_cast<target_type>(operand_info::extract_destination(ptr, base_ptr, reg_tbl) - base_ptr);
+			if (mem_tbl.read_bytes<operand_info::format>(reg_tbl.instruction_pointer()->read<unsigned __int64>())->type == operand_info::type::memory){
+				operand_info::destination_type src;
+				operand_info::extract_destination(mem_tbl, reg_tbl, src);
+				operand_info::destination_query::write(dest, static_cast<target_type>(std::get<operand_info::memory_destination>(src).address));
+			}
 			else//Use value
-				value = operand_info::extract_source<target_type>(ptr, base_ptr, reg_tbl);
-
-			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
+				operand_info::destination_query::write(dest, operand_info::extract_source<target_type>(mem_tbl, reg_tbl));
 		}
 	};
 
 	template <>
 	struct instruction<id::leab>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			lea_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			lea_instruction::evaluate(mem_tbl, reg_tbl, stack, 1);
 		}
 	};
 
 	template <>
 	struct instruction<id::leaw>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			lea_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			lea_instruction::evaluate(mem_tbl, reg_tbl, stack, 2);
 		}
 	};
 
 	template <>
 	struct instruction<id::lead>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			lea_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			lea_instruction::evaluate(mem_tbl, reg_tbl, stack, 4);
 		}
 	};
 
 	template <>
 	struct instruction<id::leaq>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			lea_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			lea_instruction::evaluate(mem_tbl, reg_tbl, stack, 8);
 		}
 	};
 }

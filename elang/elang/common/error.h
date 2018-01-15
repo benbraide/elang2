@@ -6,6 +6,10 @@
 namespace elang::common{
 	enum class error{
 		nil,
+		memory_read_access_violation,
+		memory_write_access_violation,
+		memory_out_of_space,
+		memory_invalid_size,
 		register_not_found,
 		stack_overflow,
 		stack_underflow,

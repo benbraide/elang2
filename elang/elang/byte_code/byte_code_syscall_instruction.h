@@ -14,7 +14,7 @@ namespace elang::byte_code{
 
 	class syscall_handler{
 	public:
-		static void handle(char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack);
+		static void handle(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack);
 
 		static void exit();
 
@@ -25,9 +25,8 @@ namespace elang::byte_code{
 
 	template <>
 	struct instruction<id::syscall>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			syscall_handler::handle(base_ptr, reg_tbl, stack);
-			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			syscall_handler::handle(mem_tbl, reg_tbl, stack);
 		}
 	};
 }

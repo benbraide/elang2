@@ -1,6 +1,6 @@
 #include "byte_code_translator.h"
 
-void elang::byte_code::syscall_handler::handle(char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
+void elang::byte_code::syscall_handler::handle(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
 	switch (static_cast<syscall_id>(reg_tbl.find("eax")->read<unsigned int>())){
 	case syscall_id::exit:
 		return exit();

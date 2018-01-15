@@ -7,18 +7,18 @@
 
 namespace elang::byte_code{
 	struct mov_instruction{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			switch (size){
 			case 1u://Byte
-				return copy<__int8>(ptr, base_ptr, reg_tbl);
+				return copy<__int8>(mem_tbl, reg_tbl);
 			case 2u://Word
-				return copy<__int16>(ptr, base_ptr, reg_tbl);
+				return copy<__int16>(mem_tbl, reg_tbl);
 			case 4u://Double Word
-				return copy<__int32>(ptr, base_ptr, reg_tbl);
+				return copy<__int32>(mem_tbl, reg_tbl);
 			case 8u://Quad Word
-				return copy<__int64>(ptr, base_ptr, reg_tbl);
+				return copy<__int64>(mem_tbl, reg_tbl);
 			case 10u://Float
-				return copy<long double>(ptr, base_ptr, reg_tbl);
+				return copy<long double>(mem_tbl, reg_tbl);
 			default:
 				break;
 			}
@@ -27,46 +27,45 @@ namespace elang::byte_code{
 		}
 
 		template <typename target_type>
-		static void copy(char *&ptr, char *base_ptr, memory::register_table &reg_tbl){
-			auto destination = operand_info::extract_destination(ptr, base_ptr, reg_tbl);
-			auto value = operand_info::extract_source<target_type>(ptr, base_ptr, reg_tbl);
-			memcpy(destination, &value, sizeof(target_type));
-			reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr));
+		static void copy(memory::table &mem_tbl, memory::register_table &reg_tbl){
+			operand_info::destination_type dest;
+			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::destination_query::write(dest, operand_info::extract_source<target_type>(mem_tbl, reg_tbl));
 		}
 	};
 
 	template <>
 	struct instruction<id::movb>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			mov_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 1);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			mov_instruction::evaluate(mem_tbl, reg_tbl, stack, 1);
 		}
 	};
 
 	template <>
 	struct instruction<id::movw>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			mov_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 2);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			mov_instruction::evaluate(mem_tbl, reg_tbl, stack, 2);
 		}
 	};
 
 	template <>
 	struct instruction<id::movd>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			mov_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 4);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			mov_instruction::evaluate(mem_tbl, reg_tbl, stack, 4);
 		}
 	};
 
 	template <>
 	struct instruction<id::movq>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			mov_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 8);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			mov_instruction::evaluate(mem_tbl, reg_tbl, stack, 8);
 		}
 	};
 
 	template <>
 	struct instruction<id::movf>{
-		static void evaluate(char *&ptr, char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			mov_instruction::evaluate(ptr, base_ptr, reg_tbl, stack, 10);
+		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			mov_instruction::evaluate(mem_tbl, reg_tbl, stack, 10);
 		}
 	};
 }

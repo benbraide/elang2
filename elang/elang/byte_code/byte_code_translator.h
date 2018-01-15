@@ -22,7 +22,7 @@ namespace elang::byte_code{
 
 		static void translate(char *ptr);
 
-		static void translate(char *base_ptr, __int64 entry);
+		static void translate(char *base_ptr, unsigned __int64 entry);
 
 		static bool running_main;
 		static thread_local bool running_thread;
@@ -30,20 +30,19 @@ namespace elang::byte_code{
 		static std::size_t module_size;
 		static std::size_t stack_size;
 
-		static __int64 write_protection_start;
-		static __int64 write_protection_end;
+		static unsigned __int64 write_protection_start;
+		static unsigned __int64 write_protection_end;
 
 		static thread_local memory::stack *stack;
 
 	private:
 		static id extract_id_(memory::register_table &reg_tbl);
 
-		static void translate_(char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack);
+		static void translate_(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack);
 
 		template <id id>
-		static void translate_instruction_(char *base_ptr, memory::register_table &reg_tbl, memory::stack &stack){
-			auto ptr = reinterpret_cast<char *>(reg_tbl.instruction_pointer()->read<__int64>());
-			instruction<id>::evaluate(ptr, base_ptr, reg_tbl, stack);
+		static void translate_instruction_(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			instruction<id>::evaluate(mem_tbl, reg_tbl, stack);
 		}
 	};
 }
