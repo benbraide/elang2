@@ -122,6 +122,21 @@ void elang::byte_code::translator::translate_(memory::table &mem_tbl, memory::re
 		case id::movf:
 			translate_instruction_<id::movf>(mem_tbl,reg_tbl, stack);
 			break;
+		case id::cnvtb:
+			translate_instruction_<id::cnvtb>(mem_tbl, reg_tbl, stack);
+			break;
+		case id::cnvtw:
+			translate_instruction_<id::cnvtw>(mem_tbl, reg_tbl, stack);
+			break;
+		case id::cnvtd:
+			translate_instruction_<id::cnvtd>(mem_tbl, reg_tbl, stack);
+			break;
+		case id::cnvtq:
+			translate_instruction_<id::cnvtq>(mem_tbl, reg_tbl, stack);
+			break;
+		case id::cnvtf:
+			translate_instruction_<id::cnvtf>(mem_tbl, reg_tbl, stack);
+			break;
 		case id::leab:
 			translate_instruction_<id::leab>(mem_tbl,reg_tbl, stack);
 			break;
@@ -423,7 +438,7 @@ thread_local bool elang::byte_code::translator::running_thread = false;
 
 std::size_t elang::byte_code::translator::module_size;
 
-std::size_t elang::byte_code::translator::stack_size = (1024 * 1024);//IMB default
+std::size_t elang::byte_code::translator::stack_size = (1024 * 1024);//1MB default
 
 unsigned __int64 elang::byte_code::translator::write_protection_start;
 

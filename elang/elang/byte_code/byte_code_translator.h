@@ -10,6 +10,7 @@
 #include "byte_code_arithmetic_instruction.h"
 #include "byte_code_call_instruction.h"
 #include "byte_code_cmp_instruction.h"
+#include "byte_code_cnvt_instruction.h"
 #include "byte_code_jmp_instruction.h"
 #include "byte_code_lea_instruction.h"
 #include "byte_code_loop_instruction.h"
