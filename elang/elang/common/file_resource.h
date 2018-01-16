@@ -5,6 +5,8 @@
 
 #include <string>
 
+#define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+
 #include <boost/filesystem.hpp>
 
 namespace elang::common{

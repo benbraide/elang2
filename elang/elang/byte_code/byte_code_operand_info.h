@@ -85,20 +85,11 @@ namespace elang::byte_code{
 				return reg->read<target_type>();
 			}
 			case type::memory:
-			{
-				auto offset = 0i64;
-				for (auto count = fmt->value; count > 0u; --count)
-					offset += extract_source<__int64>(mem_table, reg_tbl);
-
-				return mem_table.read<target_type>(offset);
-			}
+				return mem_table.read<target_type>(extract_source<__int64>(mem_table, reg_tbl));
 			case type::offset:
 			{
 				auto offset = 0i64;
-				auto count = mem_table.read<unsigned char>(iptr);
-
-				reg_tbl.instruction_pointer()->write(++iptr);//Update
-				for (; count > 0u; --count)
+				for (auto count = fmt->value; count > 0u; --count)
 					offset += extract_source<__int64>(mem_table, reg_tbl);
 
 				return static_cast<target_type>(offset);
@@ -131,21 +122,17 @@ namespace elang::byte_code{
 				dest = reg_tbl.find(fmt->value);
 				return;
 			case type::memory:
-				break;
+				dest = memory_destination{ &mem_table, extract_source<unsigned __int64>(mem_table, reg_tbl) };
+				return;
 			case type::offset:
 			case type::immediate:
 				throw common::error::byte_code_bad_destination_operand_type;
 				return;
 			default:
-				throw common::error::byte_code_unknown_operand_type;
-				return;
+				break;
 			}
 
-			auto offset = 0i64;
-			for (auto count = fmt->value; count > 0u; --count)
-				offset += extract_source<__int64>(mem_table, reg_tbl);
-
-			dest = memory_destination{ &mem_table, static_cast<unsigned __int64>(offset) };
+			throw common::error::byte_code_unknown_operand_type;
 		}
 	};
 }

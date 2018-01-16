@@ -3,6 +3,8 @@
 #ifndef ELANG_BYTE_CODE_TRANSLATOR_H
 #define ELANG_BYTE_CODE_TRANSLATOR_H
 
+#define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+
 #include <boost/iostreams/device/mapped_file.hpp>
 
 #include "../common/file_resource.h"
