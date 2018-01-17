@@ -59,7 +59,7 @@ namespace elang::easm{
 		void read_constant_(char *buffer, std::size_t &offset){
 			auto sum = static_cast<target_type>(0), value = static_cast<target_type>(0);
 			for (auto item : list_){//Accumulate
-				item->read_constant((&char *)(&value), sizeof(target_type));
+				item->read_constant((char *)(&value), sizeof(target_type), offset);
 				sum += value;
 			}
 

@@ -1,17 +1,34 @@
 #include "byte_code/byte_code_translator.h"
 
+#include "grammar/asm/asm_grammar.h"
+
+#define ELANG_SYNCHK(n)\
+ELANG_AST_QNAME(n) n;\
+\
+boost::spirit::x3::phrase_parse(\
+	source.begin(),\
+	source.end(),\
+	ELANG_GRAMMAR_RULE_QNAME(n),\
+	ELANG_GRAMMAR_RULE_QNAME(asm_skip),\
+	n\
+);
+
 int main(){
-	elang::memory::register_table reg_tbl;
+	std::string source("8test_string");
 
-	auto rax = reg_tbl.find("rax");
-	auto eax = reg_tbl.find("eax");
-	auto mat = rax->match(1);
-
-	auto i64 = reinterpret_cast<__int64 *>(rax->data());
-	auto i32 = reinterpret_cast<__int32 *>(eax->data());
-
-	rax->write(72);
-	eax->write(54);
+	ELANG_SYNCHK(elang_identifier);
+	ELANG_SYNCHK(asm_string);
+	ELANG_SYNCHK(asm_section);
+	ELANG_SYNCHK(asm_label);
+	ELANG_SYNCHK(asm_offset_item);
+	ELANG_SYNCHK(asm_offset);
+	ELANG_SYNCHK(asm_offset_explicit);
+	ELANG_SYNCHK(asm_memory);
+	ELANG_SYNCHK(asm_operand);
+	ELANG_SYNCHK(asm_instruction);
+	ELANG_SYNCHK(asm_times_instruction);
+	ELANG_SYNCHK(asm_instruction_set_value);
+	ELANG_SYNCHK(asm_instruction_set);
 
 	return 0;
 }
