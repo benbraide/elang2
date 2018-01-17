@@ -47,7 +47,7 @@ namespace elang::byte_code{
 	struct cjmp_instruction{
 		static void evaluate(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack, std::size_t size){
 			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
-			reg_tbl.instruction_pointer()->write(iptr + 1);//Update
+			reg_tbl.instruction_pointer()->write(iptr + sizeof(comparison_info));//Update
 			jmp_instruction::evaluate(mem_tbl, reg_tbl, stack, size, mem_tbl.read_bytes<comparison_info>(iptr));
 		}
 	};

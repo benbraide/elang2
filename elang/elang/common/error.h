@@ -24,9 +24,11 @@ namespace elang::common{
 		byte_code_syscall_unknown,
 		asm_bad_operand_type,
 		asm_bad_operand_size,
+		asm_bad_operand_count,
 		asm_bad_contant_value,
 		asm_too_many_expression_operands,
 		asm_label_not_found,
+		asm_ambiguous_instruction,
 	};
 }
 

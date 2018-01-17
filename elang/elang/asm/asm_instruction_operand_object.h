@@ -38,6 +38,18 @@ namespace elang::easm{
 		virtual std::size_t size() const{
 			return 0;
 		}
+
+		virtual bool is_register() const{
+			return false;
+		}
+
+		virtual bool is_memory() const{
+			return false;
+		}
+
+		virtual bool is_immediate() const{
+			return false;
+		}
 	};
 }
 

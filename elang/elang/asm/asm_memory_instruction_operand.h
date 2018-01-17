@@ -8,8 +8,8 @@
 namespace elang::easm{
 	class memory_instruction_operand : public instruction_operand_object{
 	public:
-		explicit memory_instruction_operand(ptr_type value)
-			: value_(value){}
+		explicit memory_instruction_operand(ptr_type value, std::size_t size = 0u)
+			: value_(value), size_(size){}
 
 		virtual ~memory_instruction_operand() = default;
 
@@ -19,7 +19,7 @@ namespace elang::easm{
 			format.value = static_cast<unsigned char>(0);
 
 			writer.write(format);
-			value_->encode(target_size, writer, size);
+			value_->encode(sizeof(std::size_t), writer, size);
 
 			size += sizeof(byte_code::operand_info::format);
 		}
@@ -28,8 +28,17 @@ namespace elang::easm{
 			return (value_->encoded_size(target_size) + sizeof(byte_code::operand_info::format));
 		}
 
+		virtual std::size_t size() const override{
+			return size_;
+		}
+
+		virtual bool is_memory() const override{
+			return true;
+		}
+
 	protected:
 		ptr_type value_;
+		std::size_t size_;
 	};
 }
 

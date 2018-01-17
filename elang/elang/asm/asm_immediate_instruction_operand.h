@@ -49,6 +49,10 @@ namespace elang::easm{
 			return (((target_size == 10u) ? 8u : target_size) + sizeof(byte_code::operand_info::format));
 		}
 
+		virtual bool is_immediate() const override{
+			return true;
+		}
+
 	protected:
 		template <typename target_type>
 		void read_constant_(char *buffer, std::size_t &offset){

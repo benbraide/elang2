@@ -8,11 +8,17 @@
 namespace elang::easm{
 	class label_instruction_operand : public instruction_operand_object{
 	public:
+		explicit label_instruction_operand(unsigned __int64 *&value)
+			: value_(&value){}
+
 		virtual ~label_instruction_operand() = default;
 
 		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size) override{
 			if (target_size > 8u)
 				throw common::error::asm_bad_operand_size;
+
+			if (*value_ == nullptr)
+				throw common::error::asm_label_not_found;
 
 			byte_code::operand_info::format format;
 			format.type = byte_code::operand_info::type::immediate;
@@ -47,10 +53,15 @@ namespace elang::easm{
 	protected:
 		template <typename target_type>
 		void read_constant_(char *buffer, std::size_t &offset){
-			auto value = static_cast<target_type>(offset);
+			if (*value_ == nullptr)
+				throw common::error::asm_label_not_found;
+
+			auto value = static_cast<target_type>(**value_);
 			memcpy(buffer, &value, sizeof(target_type));
 			offset += sizeof(target_type);
 		}
+
+		unsigned __int64 **value_;
 	};
 }
 

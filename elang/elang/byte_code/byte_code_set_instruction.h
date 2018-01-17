@@ -27,6 +27,10 @@ namespace elang::byte_code{
 
 		template <typename target_type>
 		static void set(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack){
+			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
+			reg_tbl.instruction_pointer()->write(iptr + sizeof(comparison_info));//Update
+			auto info = mem_tbl.read_bytes<comparison_info>(iptr);
+
 			operand_info::destination_type dest;
 			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
 
@@ -36,12 +40,7 @@ namespace elang::byte_code{
 			else if (!reg_tbl.has_flag(memory::register_flag::zero))
 				flag = static_cast<char>(1);
 
-			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
-			reg_tbl.instruction_pointer()->write(iptr + 1);//Update
-
-			auto value = ((comparison::compare(*mem_tbl.read_bytes<comparison_info>(iptr), flag)) ?
-				static_cast<target_type>(1) : static_cast<target_type>(0));
-
+			auto value = (comparison::compare(*info, flag) ? static_cast<target_type>(1) : static_cast<target_type>(0));
 			operand_info::destination_query::write(dest, value);
 		}
 	};
