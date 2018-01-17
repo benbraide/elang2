@@ -41,7 +41,7 @@ namespace elang::grammar{
 
 	using asm_offset_item_variant = boost::variant<ELANG_AST_NAME(asm_integral_value), ELANG_AST_NAME(elang_identifier)>;
 
-	ELANG_AST_DECLARE_PAIR_WPOS(asm_offset_item, char, asm_offset_item_variant)
+	ELANG_AST_DECLARE_PAIR_WPOS(asm_offset_item, byte_code::operand_info::offset_op_type, asm_offset_item_variant)
 	ELANG_AST_DECLARE_PAIR(asm_offset, asm_offset_item_variant, std::vector<ELANG_AST_NAME(asm_offset_item)>)
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_offset_explicit, ELANG_AST_NAME(asm_offset))
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_memory, boost::optional<std::size_t>, ELANG_AST_NAME(asm_offset))

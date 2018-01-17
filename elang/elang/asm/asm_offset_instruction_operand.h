@@ -8,7 +8,12 @@
 namespace elang::easm{
 	class offset_instruction_operand : public instruction_operand_object{
 	public:
-		explicit offset_instruction_operand(std::vector<ptr_type> &&list)
+		struct item_info{
+			byte_code::operand_info::offset_op_type op;
+			ptr_type value;
+		};
+
+		explicit offset_instruction_operand(std::vector<item_info> &&list)
 			: list_(std::move(list)){}
 
 		virtual ~offset_instruction_operand() = default;
@@ -22,8 +27,11 @@ namespace elang::easm{
 			format.value = static_cast<unsigned char>(list_.size());
 
 			writer.write(format);
-			for (auto item : list_)//Encode list
-				item->encode(target_size, writer, size);
+			for (auto &item : list_){//Encode list
+				writer.write(item.op);
+				item.value->encode(target_size, writer, size);
+				size += sizeof(byte_code::operand_info::offset_op_type);
+			}
 
 			size += sizeof(byte_code::operand_info::format);
 		}
@@ -50,7 +58,7 @@ namespace elang::easm{
 		virtual std::size_t encoded_size(std::size_t target_size) const override{
 			std::size_t size = 0;
 			for (auto item : list_)//Accumulate size
-				size += item->encoded_size(target_size);
+				size += (item.value->encoded_size(target_size) + sizeof(byte_code::operand_info::offset_op_type));
 			return (size + sizeof(byte_code::operand_info::format));
 		}
 
@@ -59,15 +67,18 @@ namespace elang::easm{
 		void read_constant_(char *buffer, std::size_t &offset){
 			auto sum = static_cast<target_type>(0), value = static_cast<target_type>(0);
 			for (auto item : list_){//Accumulate
-				item->read_constant((char *)(&value), sizeof(target_type), offset);
-				sum += value;
+				item.value->read_constant((char *)(&value), sizeof(target_type), offset);
+				if (item.op == byte_code::operand_info::offset_op_type::sub)
+					sum -= value;
+				else//Add
+					sum += value;
 			}
 
 			memcpy(buffer, &sum, sizeof(target_type));
 			offset += sizeof(target_type);
 		}
 
-		std::vector<ptr_type> list_;
+		std::vector<item_info> list_;
 	};
 }
 

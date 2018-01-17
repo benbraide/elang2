@@ -24,6 +24,11 @@ namespace elang::byte_code{
 			unsigned char value		: 6;
 		};
 
+		enum class offset_op_type : unsigned char{
+			add,
+			sub,
+		};
+
 		struct memory_destination{
 			memory::table *mem_table;
 			unsigned __int64 address;
@@ -75,7 +80,9 @@ namespace elang::byte_code{
 			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
 			auto fmt = mem_table.read_bytes<format>(iptr);
 
-			reg_tbl.instruction_pointer()->write(++iptr);//Update
+			iptr += sizeof(format);
+			reg_tbl.instruction_pointer()->write(iptr);//Update
+
 			switch (fmt->type){
 			case type::register_:
 			{
@@ -89,8 +96,18 @@ namespace elang::byte_code{
 			case type::offset:
 			{
 				auto offset = 0i64;
-				for (auto count = fmt->value; count > 0u; --count)
-					offset += extract_source<__int64>(mem_table, reg_tbl);
+				for (auto count = fmt->value; count > 0u; --count){
+					switch (*mem_table.read_bytes<offset_op_type>(iptr)){
+					case offset_op_type::sub:
+						reg_tbl.instruction_pointer()->write(iptr + sizeof(offset_op_type));//Update
+						offset -= extract_source<__int64>(mem_table, reg_tbl);
+						break;
+					default:
+						reg_tbl.instruction_pointer()->write(iptr + sizeof(offset_op_type));//Update
+						offset += extract_source<__int64>(mem_table, reg_tbl);
+						break;
+					}
+				}
 
 				return static_cast<target_type>(offset);
 			}

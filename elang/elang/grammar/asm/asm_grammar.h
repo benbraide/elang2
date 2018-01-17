@@ -92,6 +92,15 @@ namespace elang::grammar{
 		}
 	} asm_mnemonic_symbols_;
 
+	struct asm_offset_op_symbols : x3::symbols<elang::byte_code::operand_info::offset_op_type>{
+		asm_offset_op_symbols(){
+			add
+				("+", elang::byte_code::operand_info::offset_op_type::add)
+				("-", elang::byte_code::operand_info::offset_op_type::sub)
+				;
+		}
+	} asm_offset_op_symbols_;
+
 	ELANG_GRAMMAR_DECLARE_RULE(asm_uninitialized_value)
 	ELANG_GRAMMAR_RULE_DEF(asm_uninitialized_value) = x3::char_('?');
 
@@ -120,7 +129,7 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(elang_identifier) > ":"];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset_item)
-	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (x3::char_("+-") > (ELANG_GRAMMAR_RULE_NAME(asm_integral_value) | ELANG_GRAMMAR_RULE_NAME(elang_identifier)));
+	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_value) | ELANG_GRAMMAR_RULE_NAME(elang_identifier)));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset)
 	ELANG_GRAMMAR_RULE_DEF(asm_offset) = (
