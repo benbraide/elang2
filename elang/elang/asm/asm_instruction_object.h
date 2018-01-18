@@ -92,6 +92,10 @@ namespace elang::easm{
 		virtual byte_code::id get_opcode_() const override{
 			return id;
 		}
+
+		virtual std::size_t target_size_() const override{
+			return 0u;
+		}
 	};
 
 	class enter_instruction : public instruction_object{
@@ -126,6 +130,7 @@ namespace elang::easm{
 	using nop_instruction		= empty_instruction_object<byte_code::id::nop>;
 	using leave_instruction		= empty_instruction_object<byte_code::id::leave>;
 	using ret_instruction		= empty_instruction_object<byte_code::id::ret>;
+	using syscall_instruction	= empty_instruction_object<byte_code::id::syscall>;
 }
 
 #endif /* !ELANG_ASM_INSTRUCTION_OBJECT_H */

@@ -22,8 +22,8 @@ namespace elang::easm{
 			format.value = static_cast<unsigned char>(target_size);
 
 			writer.write(format);
-			read_constant(writer.allocate((target_size == 10u) ? 8u : target_size), target_size);
-			size += (((target_size == 10u) ? 8u : target_size) + sizeof(byte_code::operand_info::format));
+			read_constant(writer.allocate((target_size == 10u) ? 8u : target_size), target_size, size);
+			size += sizeof(byte_code::operand_info::format);
 		}
 
 		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset) override{

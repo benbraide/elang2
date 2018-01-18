@@ -8,8 +8,10 @@ void elang::easm::instruction_table::add(const std::string &label){
 	if (active_section_ == nullptr)
 		throw common::error::asm_no_active_section;
 
-	if (label_map_.find(label) == label_map_.end())
-		label_map_[label] = label_info{ active_section_, active_section_->offset };
+	if (label_map_.find(label) == label_map_.end()){
+		label_map_[label] = label_info{ active_section_->offset };
+		active_section_->labels.push_back(&label_map_[label]);
+	}
 	else
 		throw common::error::asm_label_redefinition;
 }
@@ -23,6 +25,40 @@ void elang::easm::instruction_table::add(iptr_type instruction){
 	active_section_->instructions.push_back(instruction);
 }
 
+void elang::easm::instruction_table::encode(char *buffer, std::size_t size, std::size_t offset){
+	static std::vector<section_id> order({
+		section_id::rodata,
+		section_id::data,
+		section_id::text
+	});
+
+	common::binary_output_writer writer(buffer, size, offset);
+	for (auto id : order){
+		auto section = section_map_.find(id);
+		if (section == section_map_.end())
+			continue;//Section not present
+
+		for (auto label : section->second.labels){//Update labels
+			label->offset += offset;
+			label->offset_ptr = &label->offset;
+		}
+
+		for (auto instruction : section->second.instructions)
+			instruction->encode(writer, offset);
+	}
+}
+
 std::size_t elang::easm::instruction_table::size() const{
-	return 0u;
+	std::size_t value = 0;
+	for (auto &section : section_map_)
+		value += section.second.offset;
+	return value;
+}
+
+elang::memory::memory_register *elang::easm::instruction_table::find_register(const std::string &name) const{
+	return reg_tbl_.find(name);
+}
+
+unsigned __int64 *&elang::easm::instruction_table::find_label(const std::string &name){
+	return label_map_[name].offset_ptr;
 }

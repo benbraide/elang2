@@ -47,14 +47,24 @@ namespace elang::easm{
 		}
 
 		virtual std::size_t encoded_size(std::size_t target_size) const override{
-			return ((target_size == 0u) ? 0u : ((value_.size() * target_size) + (value_.size() % target_size)));
+			if (value_.size() != 1u)
+				throw common::error::asm_bad_operand_type;
+			return (((target_size == 10u) ? 8u : target_size) + sizeof(byte_code::operand_info::format));
+		}
+
+		virtual std::size_t size() const override{
+			return value_.size();
+		}
+
+		virtual bool is_string() const override{
+			return true;
 		}
 
 	protected:
 		template <typename target_type>
 		void read_constant_(char *buffer, std::size_t &offset){
 			memcpy(buffer, value_.data(), value_.size());
-			offset += encoded_size(sizeof(target_type));
+			offset += count_string(value_.size(), sizeof(target_type));
 		}
 
 		std::string value_;

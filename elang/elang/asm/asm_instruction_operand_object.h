@@ -15,7 +15,7 @@ namespace elang::easm{
 		virtual ~instruction_operand_object() = default;
 
 		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size){
-			throw common::error::asm_bad_operand_type;
+			encode(target_size, writer, size);
 		}
 
 		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
@@ -49,6 +49,14 @@ namespace elang::easm{
 
 		virtual bool is_immediate() const{
 			return false;
+		}
+
+		virtual bool is_string() const{
+			return false;
+		}
+
+		static std::size_t count_string(std::size_t size, std::size_t actual_size){
+			return ((size + (actual_size + 1u) - ((size - 1u) & actual_size)) / actual_size);
 		}
 	};
 }

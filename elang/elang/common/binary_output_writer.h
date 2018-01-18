@@ -9,8 +9,8 @@
 namespace elang::common{
 	class binary_output_writer : public output_writer{
 	public:
-		binary_output_writer(char *start, std::size_t size)
-			: start_(start), current_(start), size_(size){}
+		binary_output_writer(char *start, std::size_t size, std::size_t offset = 0)
+			: start_(start), current_(start + offset), size_(size){}
 
 		virtual ~binary_output_writer() = default;
 

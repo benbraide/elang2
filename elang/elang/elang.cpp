@@ -1,34 +1,18 @@
 #include "byte_code/byte_code_translator.h"
-
-#include "grammar/asm/asm_grammar.h"
-
-#define ELANG_SYNCHK(n)\
-ELANG_AST_QNAME(n) n;\
-\
-boost::spirit::x3::phrase_parse(\
-	source.begin(),\
-	source.end(),\
-	ELANG_GRAMMAR_RULE_QNAME(n),\
-	ELANG_GRAMMAR_RULE_QNAME(asm_skip),\
-	n\
-);
+#include "asm/asm_instruction_translator.h"
 
 int main(){
-	std::string source("8test_string");
+	const int i = ((1 + 9 - (0 % 8)) / 8);
+	const int j = ((4 + 9 - (3 % 8)) / 8);
+	const int k = ((7 + 9 - (6 % 8)) / 8);
+	const int l = ((8 + 9 - (7 % 8)) / 8);
+	const int m = ((9 + 9 - (8 % 8)) / 8);
+	const int n = ((11 + 9 - (10 % 8)) / 8);
+	const int o = ((16 + 9 - (15 % 8)) / 8);
+	const int p = ((20 + 9 - (19 % 8)) / 8);
 
-	ELANG_SYNCHK(elang_identifier);
-	ELANG_SYNCHK(asm_string);
-	ELANG_SYNCHK(asm_section);
-	ELANG_SYNCHK(asm_label);
-	ELANG_SYNCHK(asm_offset_item);
-	ELANG_SYNCHK(asm_offset);
-	ELANG_SYNCHK(asm_offset_explicit);
-	ELANG_SYNCHK(asm_memory);
-	ELANG_SYNCHK(asm_operand);
-	ELANG_SYNCHK(asm_instruction);
-	ELANG_SYNCHK(asm_times_instruction);
-	ELANG_SYNCHK(asm_instruction_set_value);
-	ELANG_SYNCHK(asm_instruction_set);
+	std::string source("section .text\nmov rax, 9\nadd [rsp + 45], rax");
+	elang::easm::instruction_translator::translate(source.begin(), source.end());
 
 	return 0;
 }
