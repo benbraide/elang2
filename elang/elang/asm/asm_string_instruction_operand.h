@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~string_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
 			if (value_.size() != 1u)
 				throw common::error::asm_bad_operand_type;
 

@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~register_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size, memory::register_table &reg_tbl) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl) override{
 			if (target_size == 0u)//Any size
 				target_size = value_->size();
 			else if ((value_->is_floating_point() && target_size != 10u) || target_size != value_->size())

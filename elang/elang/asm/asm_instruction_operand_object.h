@@ -3,7 +3,7 @@
 #ifndef ELANG_ASM_INSTRUCTION_OPERAND_OBJECT_H
 #define ELANG_ASM_INSTRUCTION_OPERAND_OBJECT_H
 
-#include "../common/output_writer.h"
+#include "../common/binary_output_writer.h"
 
 #include "../byte_code/byte_code_operand_info.h"
 
@@ -14,11 +14,11 @@ namespace elang::easm{
 
 		virtual ~instruction_operand_object() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size){
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size){
 			throw common::error::asm_bad_operand_type;
 		}
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
 			encode(target_size, writer, size);
 		}
 

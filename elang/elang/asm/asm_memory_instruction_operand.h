@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~memory_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
 			byte_code::operand_info::format format;
 			format.type = byte_code::operand_info::type::memory;
 			format.value = static_cast<unsigned char>(0);

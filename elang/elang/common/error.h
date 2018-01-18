@@ -8,6 +8,7 @@ namespace elang::common{
 		nil,
 		file_not_found,
 		file_not_opened,
+		write_buffer_overflow,
 		memory_read_access_violation,
 		memory_write_access_violation,
 		memory_out_of_space,

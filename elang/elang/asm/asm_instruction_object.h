@@ -21,7 +21,7 @@ namespace elang::easm{
 
 		virtual ~instruction_object() = default;
 
-		virtual void encode(common::output_writer &writer, std::size_t &size){
+		virtual void encode(common::binary_output_writer &writer, std::size_t &size){
 			encode_opcode_(writer, size);
 			encode_additional_(writer, size);
 
@@ -41,12 +41,12 @@ namespace elang::easm{
 		virtual void validate() const{}
 
 	protected:
-		virtual void encode_opcode_(common::output_writer &writer, std::size_t &size){
+		virtual void encode_opcode_(common::binary_output_writer &writer, std::size_t &size){
 			writer.write(get_opcode_());
 			size += sizeof(byte_code::id);
 		}
 
-		virtual void encode_additional_(common::output_writer &writer, std::size_t &size){}
+		virtual void encode_additional_(common::binary_output_writer &writer, std::size_t &size){}
 
 		virtual byte_code::id offset_opcode_(byte_code::id code) const{
 			switch (target_size_()){

@@ -29,7 +29,7 @@ namespace elang::easm{
 		}
 
 	protected:
-		virtual void encode_additional_(common::output_writer &writer, std::size_t &size) override{
+		virtual void encode_additional_(common::binary_output_writer &writer, std::size_t &size) override{
 			byte_code::comparison_info info;
 			info.inverse = inverse;
 			info.id = id;

@@ -18,7 +18,7 @@ namespace elang::easm{
 
 		virtual ~offset_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
 			if (list_.size() > 63u)//Can't fit size
 				throw common::error::asm_too_many_expression_operands;
 

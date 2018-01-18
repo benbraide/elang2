@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~label_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
 			if (target_size > 8u)
 				throw common::error::asm_bad_operand_size;
 
