@@ -7,6 +7,7 @@ namespace elang::common{
 	enum class error{
 		nil,
 		file_not_found,
+		file_not_opened,
 		memory_read_access_violation,
 		memory_write_access_violation,
 		memory_out_of_space,
@@ -28,7 +29,10 @@ namespace elang::common{
 		asm_bad_contant_value,
 		asm_too_many_expression_operands,
 		asm_label_not_found,
+		asm_label_redefinition,
 		asm_ambiguous_instruction,
+		asm_no_active_section,
+		asm_parse_error,
 	};
 }
 
