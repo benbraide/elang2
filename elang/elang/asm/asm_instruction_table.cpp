@@ -25,6 +25,14 @@ void elang::easm::instruction_table::add(iptr_type instruction){
 	active_section_->instructions.push_back(instruction);
 }
 
+void elang::easm::instruction_table::set_start_label(const std::string &label){
+	start_label_ = label;
+}
+
+void elang::easm::instruction_table::set_stack_size(std::size_t size){
+	stack_size_ = size;
+}
+
 void elang::easm::instruction_table::encode(char *buffer, std::size_t size, std::size_t offset){
 	static std::vector<section_id> order({
 		section_id::rodata,
@@ -53,6 +61,18 @@ std::size_t elang::easm::instruction_table::size() const{
 	for (auto &section : section_map_)
 		value += section.second.offset;
 	return value;
+}
+
+std::size_t elang::easm::instruction_table::stack_size() const{
+	return stack_size_;
+}
+
+unsigned __int64 elang::easm::instruction_table::start_address() const{
+	if (start_label_.empty())
+		return 0u;
+
+	auto entry = label_map_.find(start_label_);
+	return ((entry == label_map_.end() || (entry->second.offset_ptr == nullptr)) ? 0u : entry->second.offset);
 }
 
 elang::memory::memory_register *elang::easm::instruction_table::find_register(const std::string &name) const{

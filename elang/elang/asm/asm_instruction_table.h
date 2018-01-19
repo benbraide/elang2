@@ -38,9 +38,17 @@ namespace elang::easm{
 
 		void add(iptr_type instruction);
 
+		void set_start_label(const std::string &label);
+
+		void set_stack_size(std::size_t size);
+
 		void encode(char *buffer, std::size_t size, std::size_t offset);
 
 		std::size_t size() const;
+
+		std::size_t stack_size() const;
+
+		unsigned __int64 start_address() const;
 
 		memory::memory_register *find_register(const std::string &name) const;
 
@@ -51,6 +59,8 @@ namespace elang::easm{
 		section_map_type section_map_;
 		label_map_type label_map_;
 		memory::register_table reg_tbl_;
+		std::size_t stack_size_ = 0;
+		std::string start_label_;
 	};
 }
 

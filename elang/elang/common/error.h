@@ -34,6 +34,7 @@ namespace elang::common{
 		asm_ambiguous_instruction,
 		asm_no_active_section,
 		asm_parse_error,
+		asm_no_start_address,
 	};
 }
 

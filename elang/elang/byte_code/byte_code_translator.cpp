@@ -38,25 +38,25 @@ void elang::byte_code::translator::translate(const char *ptr){
 	memcpy(&start_address, ptr, sizeof(unsigned __int64));
 	ptr += sizeof(unsigned __int64);
 
+	memory::table mem_tbl;
+	mem_tbl.protect_from_access(memory::table::range_type{});
+
+	auto block = mem_tbl.allocate(module_size);
+	mem_tbl.write(block->address, ptr, module_size);
+
+	if (write_protection_end > 0u)//Protect range from writes
+		mem_tbl.protect_from_write(memory::table::range_type{ write_protection_start, write_protection_end });
+
 	running_main = true;
-	translate(ptr, start_address);
+	translate(mem_tbl, start_address);
 }
 
-void elang::byte_code::translator::translate(const char *base_ptr, unsigned __int64 entry){
+void elang::byte_code::translator::translate(memory::table &mem_tbl, unsigned __int64 entry){
 	if (running_thread)
 		return;//Already running
 
 	if (translator::stack_size == 0u)//Use default size -- 1MB
 		translator::stack_size = (1024 * 1024);
-
-	memory::table mem_tbl;
-	mem_tbl.protect_from_access(memory::table::range_type{});
-
-	auto block = mem_tbl.allocate(module_size);
-	mem_tbl.write(block->address, base_ptr, module_size);
-
-	if (write_protection_end > 0u)//Protect range from writes
-		mem_tbl.protect_from_write(memory::table::range_type{ write_protection_start, write_protection_end });
 
 	memory::register_table reg_tbl;
 	memory::stack stack(mem_tbl, translator::stack_size);

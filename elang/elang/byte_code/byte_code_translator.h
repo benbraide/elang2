@@ -29,7 +29,7 @@ namespace elang::byte_code{
 
 		static void translate(const char *ptr);
 
-		static void translate(const char *base_ptr, unsigned __int64 entry);
+		static void translate(memory::table &mem_tbl, unsigned __int64 entry);
 
 		static bool running_main;
 		static thread_local bool running_thread;

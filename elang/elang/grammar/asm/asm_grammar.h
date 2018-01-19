@@ -160,10 +160,26 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_DECLARE_RULE(asm_times_instruction)
 	ELANG_GRAMMAR_RULE_DEF(asm_times_instruction) = (x3::no_case[utils::keyword("times")] >> x3::uint_ >> ELANG_GRAMMAR_RULE_NAME(asm_instruction));
 
+	ELANG_GRAMMAR_DECLARE_RULE(asm_stack)
+	ELANG_GRAMMAR_RULE_DEF(asm_stack) = (x3::no_case[utils::keyword(".stack")] > x3::uint64);
+
+	ELANG_GRAMMAR_DECLARE_RULE(asm_global)
+	ELANG_GRAMMAR_RULE_DEF(asm_global) = (x3::no_case[utils::keyword(".global")] > ELANG_GRAMMAR_RULE_NAME(elang_identifier));
+
+	ELANG_GRAMMAR_DECLARE_RULE(asm_dzero)
+	ELANG_GRAMMAR_RULE_DEF(asm_dzero) = (x3::no_case[utils::keyword(".zero")] > x3::uint64);
+
+	ELANG_GRAMMAR_DECLARE_RULE(asm_dstring)
+	ELANG_GRAMMAR_RULE_DEF(asm_dstring) = (x3::no_case[utils::keyword(".string")] > ELANG_GRAMMAR_RULE_NAME(asm_string));
+
 	ELANG_GRAMMAR_DECLARE_RULE(asm_instruction_set_value)
 	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set_value) = ((
 		ELANG_GRAMMAR_RULE_NAME(asm_section) |
 		ELANG_GRAMMAR_RULE_NAME(asm_times_instruction) |
+		ELANG_GRAMMAR_RULE_NAME(asm_stack) |
+		ELANG_GRAMMAR_RULE_NAME(asm_global) |
+		ELANG_GRAMMAR_RULE_NAME(asm_dzero) |
+		ELANG_GRAMMAR_RULE_NAME(asm_dstring) |
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction) |
 		ELANG_GRAMMAR_RULE_NAME(asm_label)
 	) > x3::omit[(x3::eol | x3::eoi)]);
@@ -190,6 +206,10 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_times_instruction),
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction_set_value),
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction_set),
+		ELANG_GRAMMAR_RULE_NAME(asm_stack),
+		ELANG_GRAMMAR_RULE_NAME(asm_global),
+		ELANG_GRAMMAR_RULE_NAME(asm_dzero),
+		ELANG_GRAMMAR_RULE_NAME(asm_dstring),
 		ELANG_GRAMMAR_RULE_NAME(asm_skip)
 	)
 }

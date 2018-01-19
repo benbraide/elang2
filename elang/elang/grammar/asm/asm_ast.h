@@ -119,12 +119,22 @@ namespace elang::grammar{
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_instruction, asm_instruction_id, std::vector<ELANG_AST_NAME(asm_operand)>)
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_times_instruction, unsigned int, ELANG_AST_NAME(asm_instruction))
 
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_stack, unsigned __int64)
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_global, ELANG_AST_NAME(elang_identifier))
+
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_dzero, unsigned __int64)
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_dstring, ELANG_AST_NAME(asm_string))
+
 	ELANG_AST_DECLARE_SINGLE_VARIANT(
 		asm_instruction_set_value,
 		ELANG_AST_NAME(asm_section),
 		ELANG_AST_NAME(asm_label),
 		ELANG_AST_NAME(asm_instruction),
-		ELANG_AST_NAME(asm_times_instruction)
+		ELANG_AST_NAME(asm_times_instruction),
+		ELANG_AST_NAME(asm_stack),
+		ELANG_AST_NAME(asm_global),
+		ELANG_AST_NAME(asm_dzero),
+		ELANG_AST_NAME(asm_dstring)
 	)
 
 	ELANG_AST_DECLARE_SINGLE(asm_instruction_set, std::vector<ELANG_AST_NAME(asm_instruction_set_value)>)
@@ -133,6 +143,23 @@ namespace elang::grammar{
 	public:
 		explicit asm_ast_visitor(easm::instruction_table &table)
 			: table_(table){}
+
+		void operator ()(ELANG_AST_NAME(asm_dstring) &ast) const{
+			std::vector<std::shared_ptr<elang::easm::instruction_operand_object>> operands({ operator()(ast.value) });
+			table_.add(std::make_shared<elang::easm::db_instruction>(std::move(operands)));
+		}
+
+		void operator ()(ELANG_AST_NAME(asm_dzero) &ast) const{
+
+		}
+
+		void operator ()(ELANG_AST_NAME(asm_global) &ast) const{
+			table_.set_start_label(ast.value.value);
+		}
+
+		void operator ()(ELANG_AST_NAME(asm_stack) &ast) const{
+			table_.set_stack_size(ast.value);
+		}
 
 		void operator ()(ELANG_AST_NAME(asm_times_instruction) &ast) const{
 			for (auto count = 0u; count < ast.first; ++count)
@@ -340,6 +367,12 @@ ELANG_AST_ADAPT_SINGLE(asm_operand);
 
 ELANG_AST_ADAPT_PAIR(asm_instruction)
 ELANG_AST_ADAPT_PAIR(asm_times_instruction)
+
+ELANG_AST_ADAPT_SINGLE(asm_stack)
+ELANG_AST_ADAPT_SINGLE(asm_global)
+
+ELANG_AST_ADAPT_SINGLE(asm_dzero)
+ELANG_AST_ADAPT_SINGLE(asm_dstring)
 
 ELANG_AST_ADAPT_SINGLE(asm_instruction_set_value)
 ELANG_AST_ADAPT_SINGLE(asm_instruction_set)

@@ -40,12 +40,24 @@ namespace elang::easm{
 			instruction_table table;
 			grammar::asm_ast_visitor::visit(instruction_set, table);
 
+			auto size = table.size();
+			auto stack_size = table.stack_size();
+
 			auto path = common::file_destination::resolve(dir, file, "ebcd");
-			boost::iostreams::mapped_file source(path, boost::iostreams::mapped_file::readwrite, (table.size() + 25u));
+			boost::iostreams::mapped_file source(path, boost::iostreams::mapped_file::readwrite, (size + 41u));
 			if (!source.is_open())
 				throw common::error::file_not_opened;
 
-			table.encode(source.data(), source.size(), 25u);
+			memcpy(source.data(), &size, sizeof(size));
+			memcpy((source.data() + 8u), &stack_size, sizeof(stack_size));
+			memset((source.data() + 16u), 0, 16u);
+
+			table.encode(source.data(), source.size(), 41u);
+
+			auto start_address = table.start_address();
+			memcpy((source.data() + 32u), &start_address, sizeof(start_address));
+
+			*(source.data() + 40u) = '\0';
 		}
 
 		static void translate_file(const std::string &file, const std::string &dir = "test/asm"){
@@ -67,11 +79,22 @@ namespace elang::easm{
 
 			instruction_table table;
 			grammar::asm_ast_visitor::visit(instruction_set, table);
+			
+			auto size = table.size();
+			auto stack_size = table.stack_size();
 
 			std::string source;
-			source.resize(table.size() + 25u);
+			source.resize(table.size() + 41u);
+			table.encode(source.data(), source.size(), 41u);
 
-			table.encode(source.data(), source.size(), 25u);
+			memcpy(source.data(), &size, sizeof(size));
+			memcpy((source.data() + 8u), &stack_size, sizeof(stack_size));
+			memset((source.data() + 16u), 0, 16u);
+
+			auto start_address = table.start_address();
+			memcpy((source.data() + 32u), &start_address, sizeof(start_address));
+
+			*(source.data() + 40u) = '\0';
 			byte_code::translator::translate(source.data());
 		}
 
