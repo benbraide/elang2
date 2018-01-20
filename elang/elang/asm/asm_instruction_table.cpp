@@ -40,7 +40,7 @@ void elang::easm::instruction_table::encode(char *buffer, std::size_t size, std:
 		section_id::text
 	});
 
-	common::binary_output_writer writer(buffer, size, offset);
+	common::binary_output_writer writer(buffer, size);
 	for (auto id : order){
 		auto section = section_map_.find(id);
 		if (section == section_map_.end())
@@ -52,7 +52,7 @@ void elang::easm::instruction_table::encode(char *buffer, std::size_t size, std:
 		}
 
 		for (auto instruction : section->second.instructions)
-			instruction->encode(writer, offset);
+			instruction->encode(writer, offset, reg_tbl_);
 	}
 }
 

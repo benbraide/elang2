@@ -18,7 +18,7 @@ namespace elang::easm{
 
 		virtual ~offset_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl) override{
 			if (list_.size() > 63u)//Can't fit size
 				throw common::error::asm_too_many_expression_operands;
 
@@ -29,7 +29,7 @@ namespace elang::easm{
 			writer.write(format);
 			for (auto &item : list_){//Encode list
 				writer.write(item.op);
-				item.value->encode(target_size, writer, size);
+				item.value->encode(target_size, writer, size, reg_tbl);
 				size += sizeof(byte_code::operand_info::offset_op_type);
 			}
 

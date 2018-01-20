@@ -52,7 +52,7 @@ namespace elang::easm{
 			memcpy((source.data() + 8u), &stack_size, sizeof(stack_size));
 			memset((source.data() + 16u), 0, 16u);
 
-			table.encode(source.data(), source.size(), 41u);
+			table.encode((source.data() + 41u), size, 1u);
 
 			auto start_address = table.start_address();
 			memcpy((source.data() + 32u), &start_address, sizeof(start_address));
@@ -84,10 +84,10 @@ namespace elang::easm{
 			auto stack_size = table.stack_size();
 
 			std::string source;
-			source.resize(table.size() + 41u);
-			table.encode(source.data(), source.size(), 41u);
+			source.resize(size + 41u);
+			table.encode((source.data() + 41u), size, 1u);
 
-			memcpy(source.data(), &size, sizeof(size));
+			memcpy(source.data(), &(++size), sizeof(size));
 			memcpy((source.data() + 8u), &stack_size, sizeof(stack_size));
 			memset((source.data() + 16u), 0, 16u);
 

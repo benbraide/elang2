@@ -2,13 +2,14 @@
 
 void elang::memory::table::protect_from_access(const range_type &range){
 	access_protected_ = range;
-	if (next_address_ <= range.to)
-		next_address_ = (range.to + 1);
 }
 
 bool elang::memory::table::is_access_protected(const range_type &range) const{
 	if (/*elang::vm::runtime::is_inside_protected_mode()*/false)
 		return false;//Inside protected mode
+
+	if (access_protected_.from == static_cast<unsigned __int64>(-1) || access_protected_.to == static_cast<unsigned __int64>(-1))
+		return false;//Not set
 
 	return ((access_protected_.from <= range.from && range.from <= access_protected_.to) ||
 		(access_protected_.from <= range.to && range.to <= access_protected_.to));
@@ -19,6 +20,9 @@ void elang::memory::table::protect_from_write(const range_type &range){
 }
 
 bool elang::memory::table::is_write_protected(const range_type &range) const{
+	if (write_protected_.from == static_cast<unsigned __int64>(-1) || write_protected_.to == static_cast<unsigned __int64>(-1))
+		return false;//Not set
+
 	return ((write_protected_.from <= range.from && range.from <= write_protected_.to) ||
 		(write_protected_.from <= range.to && range.to <= write_protected_.to));
 }

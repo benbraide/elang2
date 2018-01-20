@@ -10,6 +10,8 @@
 #include "../memory/memory_table.h"
 #include "../memory/memory_register_table.h"
 
+#include "byte_code_debug.h"
+
 namespace elang::byte_code{
 	struct operand_info{
 		enum class type : unsigned char{
@@ -76,7 +78,7 @@ namespace elang::byte_code{
 		};
 
 		template <typename target_type>
-		static target_type extract_source(memory::table &mem_table, memory::register_table &reg_tbl){
+		static target_type extract_source(memory::table &mem_table, memory::register_table &reg_tbl, bool is_memory = false){
 			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
 			auto fmt = mem_table.read_bytes<format>(iptr);
 
@@ -89,22 +91,50 @@ namespace elang::byte_code{
 				auto reg = reg_tbl.find(fmt->value);
 				if (reg == nullptr)//Error
 					throw common::error::register_not_found;
+
+				if (debug::debugger != nullptr){
+					if (is_memory)
+						debug::debugger->log(reg->name());
+					else//Operand
+						debug::debugger->log_operand(reg->name());
+				}
+
 				return reg->read<target_type>();
 			}
 			case type::memory:
-				return mem_table.read<target_type>(extract_source<__int64>(mem_table, reg_tbl));
+			{
+				if (debug::debugger != nullptr)
+					debug::debugger->log_operand("[");
+
+				auto value = mem_table.read<target_type>(extract_source<__int64>(mem_table, reg_tbl, true));
+				if (debug::debugger != nullptr)
+					debug::debugger->log("]");
+
+				return value;
+			}
 			case type::offset:
 			{
 				auto offset = 0i64;
 				for (auto count = fmt->value; count > 0u; --count){
+					iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
 					switch (*mem_table.read_bytes<offset_op_type>(iptr)){
 					case offset_op_type::sub:
+						if (debug::debugger != nullptr && count != fmt->value)
+							debug::debugger->log(" - ");
+
 						reg_tbl.instruction_pointer()->write(iptr + sizeof(offset_op_type));//Update
-						offset -= extract_source<__int64>(mem_table, reg_tbl);
+						offset -= extract_source<__int64>(mem_table, reg_tbl, is_memory);
+						is_memory = true;
+
 						break;
 					default:
+						if (debug::debugger != nullptr && count != fmt->value)
+							debug::debugger->log(" + ");
+
 						reg_tbl.instruction_pointer()->write(iptr + sizeof(offset_op_type));//Update
-						offset += extract_source<__int64>(mem_table, reg_tbl);
+						offset += extract_source<__int64>(mem_table, reg_tbl, is_memory);
+						is_memory = true;
+
 						break;
 					}
 				}
@@ -113,12 +143,20 @@ namespace elang::byte_code{
 			}
 			case type::immediate:
 			{
-				reg_tbl.instruction_pointer()->write(iptr + fmt->value);//Update
-				if (sizeof(target_type) == fmt->value)
-					return mem_table.read<target_type>(iptr);
-
 				auto value = target_type();//Zero out bytes
-				mem_table.read(iptr, (char *)&value, fmt->value);//Copy applicable bytes
+				reg_tbl.instruction_pointer()->write(iptr + fmt->value);//Update
+
+				if (sizeof(target_type) == fmt->value)
+					value = mem_table.read<target_type>(iptr);
+				else//Copy applicable bytes
+					mem_table.read(iptr, (char *)&value, fmt->value);
+
+				if (debug::debugger != nullptr){
+					if (is_memory)
+						debug::debugger->log(std::to_string(value));
+					else//Operand
+						debug::debugger->log_operand(std::to_string(value));
+				}
 
 				return value;
 			}
@@ -136,10 +174,25 @@ namespace elang::byte_code{
 			reg_tbl.instruction_pointer()->write(++iptr);//Update
 			switch (fmt->type){
 			case type::register_:
-				dest = reg_tbl.find(fmt->value);
+			{
+				auto reg = reg_tbl.find(fmt->value);
+				if (reg == nullptr)//Error
+					throw common::error::register_not_found;
+
+				dest = reg;
+				if (debug::debugger != nullptr)
+					debug::debugger->log_operand(reg->name());
+
 				return;
+			}
 			case type::memory:
-				dest = memory_destination{ &mem_table, extract_source<unsigned __int64>(mem_table, reg_tbl) };
+				if (debug::debugger != nullptr)
+					debug::debugger->log_operand("[");
+
+				dest = memory_destination{ &mem_table, extract_source<unsigned __int64>(mem_table, reg_tbl, true) };
+				if (debug::debugger != nullptr)
+					debug::debugger->log("]");
+
 				return;
 			case type::offset:
 			case type::immediate:

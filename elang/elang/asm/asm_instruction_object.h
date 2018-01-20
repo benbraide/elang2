@@ -21,13 +21,13 @@ namespace elang::easm{
 
 		virtual ~instruction_object() = default;
 
-		virtual void encode(common::binary_output_writer &writer, std::size_t &size){
+		virtual void encode(common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
 			encode_opcode_(writer, size);
 			encode_additional_(writer, size);
 
 			auto target_size = target_size_();
 			for (auto operand : operands_)
-				operand->encode(target_size, writer, size);
+				operand->encode(target_size, writer, size, reg_tbl);
 		}
 
 		virtual std::size_t encoded_size() const{

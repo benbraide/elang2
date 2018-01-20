@@ -10,6 +10,14 @@ namespace elang::common{
 	public:
 		virtual ~output_writer() = default;
 
+		virtual void write(const std::string &value){
+			write(value.data(), value.size());
+		}
+
+		virtual void write(const std::wstring &value){
+			write(value.data(), value.size());
+		}
+
 		virtual void write(const char *buffer, std::size_t size = 0) = 0;
 
 		virtual void write(const wchar_t *buffer, std::size_t size = 0) = 0;

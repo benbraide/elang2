@@ -39,11 +39,10 @@ void elang::byte_code::translator::translate(const char *ptr){
 	ptr += sizeof(unsigned __int64);
 
 	memory::table mem_tbl;
-	mem_tbl.protect_from_access(memory::table::range_type{});
-
 	auto block = mem_tbl.allocate(module_size);
 	mem_tbl.write(block->address, ptr, module_size);
 
+	mem_tbl.protect_from_access(memory::table::range_type{});
 	if (write_protection_end > 0u)//Protect range from writes
 		mem_tbl.protect_from_write(memory::table::range_type{ write_protection_start, write_protection_end });
 
@@ -73,7 +72,7 @@ void elang::byte_code::translator::translate_(memory::table &mem_tbl, memory::re
 	translator::stack = &stack;
 
 	while (running_thread && running_main){
-		switch (extract_id_(reg_tbl)){
+		switch (extract_id_(mem_tbl, reg_tbl)){
 		case id::nop:
 			translate_instruction_<id::nop>(mem_tbl,reg_tbl, stack);
 			break;
@@ -426,10 +425,15 @@ void elang::byte_code::translator::translate_(memory::table &mem_tbl, memory::re
 	running_thread = false;
 }
 
-elang::byte_code::id elang::byte_code::translator::extract_id_(memory::register_table &reg_tbl){
-	auto ptr = reinterpret_cast<char *>(reg_tbl.instruction_pointer()->read<__int64>());
-	reg_tbl.instruction_pointer()->write(reinterpret_cast<__int64>(ptr + 1));//Advance pointer
-	return static_cast<id>(*(ptr));
+elang::byte_code::id elang::byte_code::translator::extract_id_(memory::table &mem_tbl, memory::register_table &reg_tbl){
+	auto ptr = reg_tbl.instruction_pointer()->read<__int64>();
+	reg_tbl.instruction_pointer()->write(ptr + sizeof(id));//Advance pointer
+
+	auto value = mem_tbl.read<id>(ptr);
+	if (debug::debugger != nullptr)
+		debug::debugger->log(value);
+
+	return value;
 }
 
 bool elang::byte_code::translator::running_main = false;

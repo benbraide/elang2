@@ -15,7 +15,7 @@ namespace elang::easm{
 
 		virtual ~decl_instruction() = default;
 
-		virtual void encode(common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode(common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl) override{
 			std::size_t actual_size = ((decl_size == 10u) ? 8u : decl_size);
 			for (auto operand : operands_){//Copy bytes
 				if (operand->is_string())

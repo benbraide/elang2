@@ -73,9 +73,8 @@ namespace elang::memory{
 
 		template <typename target_type>
 		target_type *read_bytes(unsigned __int64 source){
-			target_type *value = nullptr;
-			read(source, (char *)value, sizeof(target_type));
-			return value;
+			auto block = find_nearest(source);
+			return ((block == nullptr) ? nullptr : (target_type *)(block->data.get() + (source - block->address)));
 		}
 
 		template <typename target_type>
@@ -178,9 +177,9 @@ namespace elang::memory{
 
 		block_type *find_nearest_(unsigned __int64 address);
 
-		range_type access_protected_{};
-		range_type write_protected_{};
-		unsigned __int64 next_address_ = 1u;
+		range_type access_protected_{ static_cast<unsigned __int64>(-1), static_cast<unsigned __int64>(-1) };
+		range_type write_protected_{ static_cast<unsigned __int64>(-1), static_cast<unsigned __int64>(-1) };
+		unsigned __int64 next_address_ = 0u;
 		map_type map_;
 		size_map_type available_;
 		lock_type lock_;

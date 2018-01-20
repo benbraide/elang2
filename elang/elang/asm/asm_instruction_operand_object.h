@@ -15,7 +15,7 @@ namespace elang::easm{
 		virtual ~instruction_operand_object() = default;
 
 		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size){
-			encode(target_size, writer, size);
+			throw common::error::asm_bad_operand_type;
 		}
 
 		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){

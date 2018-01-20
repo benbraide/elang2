@@ -43,7 +43,7 @@ namespace elang::byte_code{
 		static thread_local memory::stack *stack;
 
 	private:
-		static id extract_id_(memory::register_table &reg_tbl);
+		static id extract_id_(memory::table &mem_tbl, memory::register_table &reg_tbl);
 
 		static void translate_(memory::table &mem_tbl, memory::register_table &reg_tbl, memory::stack &stack);
 
