@@ -48,11 +48,11 @@ namespace elang::easm{
 			if (!source.is_open())
 				throw common::error::file_not_opened;
 
-			memcpy(source.data(), &size, sizeof(size));
+			table.encode((source.data() + 41u), size, 1u);
+
+			memcpy(source.data(), &(++size), sizeof(size));
 			memcpy((source.data() + 8u), &stack_size, sizeof(stack_size));
 			memset((source.data() + 16u), 0, 16u);
-
-			table.encode((source.data() + 41u), size, 1u);
 
 			auto start_address = table.start_address();
 			memcpy((source.data() + 32u), &start_address, sizeof(start_address));

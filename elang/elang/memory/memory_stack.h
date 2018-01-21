@@ -15,22 +15,22 @@ namespace elang::memory{
 
 		stack(table &tbl, size_type size);
 
-		char *push(size_type size);
+		std::size_t push(size_type size);
 
-		char *push(size_type size, const char *buffer);
+		std::size_t push(size_type size, const char *buffer);
 
-		char *push(const memory_register &reg);
+		std::size_t push(const memory_register &reg);
 
 		template <typename value_type>
-		char *push_value(value_type value){
+		std::size_t push_value(value_type value){
 			return push(sizeof(value_type), reinterpret_cast<const char *>(&value));
 		}
 
-		char *pop(size_type size);
+		std::size_t pop(size_type size);
 
-		char *pop(size_type size, char *buffer);
+		std::size_t pop(size_type size, char *buffer);
 
-		char *pop(memory_register &reg);
+		std::size_t pop(memory_register &reg);
 
 		template <typename target_type>
 		target_type pop_value(){
@@ -44,6 +44,8 @@ namespace elang::memory{
 		char *base() const;
 
 		char *ptr() const;
+
+		std::size_t offset() const;
 
 	private:
 		table::block_type *block_;

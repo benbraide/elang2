@@ -33,7 +33,7 @@ void elang::memory::memory_register::read(char *value, size_type size) const{
 		memset((value + size_), 0, (size - size_));
 	}
 	else//Copy applicable bits
-		memcpy(value, data_, size_);
+		memcpy(value, data_, size);
 }
 
 elang::memory::memory_register *elang::memory::memory_register::match(size_type size) const{

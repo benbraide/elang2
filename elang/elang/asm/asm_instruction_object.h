@@ -21,13 +21,13 @@ namespace elang::easm{
 
 		virtual ~instruction_object() = default;
 
-		virtual void encode(common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
-			encode_opcode_(writer, size);
-			encode_additional_(writer, size);
+		virtual void encode(common::binary_output_writer &writer, memory::register_table &reg_tbl){
+			encode_opcode_(writer);
+			encode_additional_(writer);
 
 			auto target_size = target_size_();
 			for (auto operand : operands_)
-				operand->encode(target_size, writer, size, reg_tbl);
+				operand->encode(target_size, writer, reg_tbl);
 		}
 
 		virtual std::size_t encoded_size() const{
@@ -40,13 +40,20 @@ namespace elang::easm{
 
 		virtual void validate() const{}
 
-	protected:
-		virtual void encode_opcode_(common::binary_output_writer &writer, std::size_t &size){
-			writer.write(get_opcode_());
-			size += sizeof(byte_code::id);
+		virtual void update_position(unsigned __int64 value){
+			auto target_size = target_size_();
+			for (auto operand : operands_){
+				operand->update_position(value);
+				value += operand->encoded_size(target_size);
+			}
 		}
 
-		virtual void encode_additional_(common::binary_output_writer &writer, std::size_t &size){}
+	protected:
+		virtual void encode_opcode_(common::binary_output_writer &writer){
+			writer.write(get_opcode_());
+		}
+
+		virtual void encode_additional_(common::binary_output_writer &writer){}
 
 		virtual byte_code::id offset_opcode_(byte_code::id code) const{
 			switch (target_size_()){

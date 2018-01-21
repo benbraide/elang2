@@ -21,8 +21,10 @@ void elang::easm::instruction_table::add(iptr_type instruction){
 		throw common::error::asm_no_active_section;
 
 	instruction->validate();
-	active_section_->offset += instruction->encoded_size();
-	active_section_->instructions.push_back(instruction);
+	auto size = instruction->encoded_size();
+
+	active_section_->offset += size;
+	active_section_->instructions.push_back(instruction_info{ size, instruction });
 }
 
 void elang::easm::instruction_table::set_start_label(const std::string &label){
@@ -51,8 +53,11 @@ void elang::easm::instruction_table::encode(char *buffer, std::size_t size, std:
 			label->offset_ptr = &label->offset;
 		}
 
-		for (auto instruction : section->second.instructions)
-			instruction->encode(writer, offset, reg_tbl_);
+		for (auto instruction : section->second.instructions){
+			instruction.value->update_position(offset);
+			instruction.value->encode(writer, reg_tbl_);
+			offset += instruction.size;
+		}
 	}
 }
 
@@ -73,6 +78,16 @@ unsigned __int64 elang::easm::instruction_table::start_address() const{
 
 	auto entry = label_map_.find(start_label_);
 	return ((entry == label_map_.end() || (entry->second.offset_ptr == nullptr)) ? 0u : entry->second.offset);
+}
+
+unsigned __int64 elang::easm::instruction_table::write_protect_start() const{
+	auto section = section_map_.find(section_id::rodata);
+	return ((section == section_map_.end()) ? 0u : section->second.offset);
+}
+
+unsigned __int64 elang::easm::instruction_table::write_protect_end() const{
+	auto section = section_map_.find(section_id::rodata);
+	return ((section == section_map_.end()) ? 0u : section->second.offset);
 }
 
 elang::memory::memory_register *elang::easm::instruction_table::find_register(const std::string &name) const{

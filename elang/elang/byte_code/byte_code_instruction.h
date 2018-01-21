@@ -29,7 +29,7 @@ namespace elang::byte_code{
 
 			auto size = operand_info::extract_source<unsigned __int64>(mem_tbl, reg_tbl);
 			if (size > 0)//Allocate space on stack
-				reg_tbl.stack_pointer()->write(reinterpret_cast<unsigned __int64>(stack.push(size)));
+				reg_tbl.stack_pointer()->write(stack.push(size));
 		}
 	};
 

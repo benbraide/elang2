@@ -58,13 +58,11 @@ namespace elang::easm{
 		}
 
 	protected:
-		virtual void encode_additional_(common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode_additional_(common::binary_output_writer &writer) override{
 			byte_code::comparison_info info;
 			info.inverse = inverse;
 			info.id = id;
-
 			writer.write(info);
-			size += sizeof(byte_code::comparison_info);
 		}
 
 		virtual byte_code::id get_opcode_() const override{

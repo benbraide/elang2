@@ -11,11 +11,19 @@
 #include "asm_section_id.h"
 #include "asm_instruction_object.h"
 
+#include "asm_position_instruction_operand.h"
+
 namespace elang::easm{
 	class instruction_table{
 	public:
 		typedef std::shared_ptr<instruction_object> iptr_type;
-		typedef std::list<iptr_type> iptr_list_type;
+
+		struct instruction_info{
+			std::size_t size;
+			iptr_type value;
+		};
+
+		typedef std::list<instruction_info> iptr_list_type;
 
 		struct label_info{
 			unsigned __int64 offset;
@@ -49,6 +57,10 @@ namespace elang::easm{
 		std::size_t stack_size() const;
 
 		unsigned __int64 start_address() const;
+
+		unsigned __int64 write_protect_start() const;
+
+		unsigned __int64 write_protect_end() const;
 
 		memory::memory_register *find_register(const std::string &name) const;
 

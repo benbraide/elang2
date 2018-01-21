@@ -14,15 +14,11 @@ namespace elang::easm{
 
 		virtual ~instruction_operand_object() = default;
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size){
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, memory::register_table &reg_tbl){
 			throw common::error::asm_bad_operand_type;
 		}
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size, memory::register_table &reg_tbl){
-			encode(target_size, writer, size);
-		}
-
-		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset){
+		virtual void read_constant(char *buffer, std::size_t size){
 			throw common::error::asm_bad_contant_value;
 		}
 
@@ -32,6 +28,8 @@ namespace elang::easm{
 			read_constant((char *)(&value), sizeof(target_type), offset);
 			return value;
 		}
+
+		virtual void update_position(unsigned __int64 value){}
 
 		virtual std::size_t encoded_size(std::size_t target_size) const = 0;
 

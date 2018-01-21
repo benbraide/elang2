@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~label_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, memory::register_table &reg_tbl) override{
 			if (target_size > 8u)
 				throw common::error::asm_bad_operand_size;
 
@@ -25,20 +25,35 @@ namespace elang::easm{
 			format.value = static_cast<unsigned char>(target_size);
 
 			writer.write(format);
-			writer.write(size);
-			size += (target_size + sizeof(byte_code::operand_info::format));
+			switch (target_size){
+			case 1u://Byte
+				writer.write(static_cast<__int8>(**value_));
+				break;
+			case 2u://Word
+				writer.write(static_cast<__int16>(**value_));
+				break;
+			case 4u://Double Word
+				writer.write(static_cast<__int32>(**value_));
+				break;
+			case 8u://Quad Word
+				writer.write(static_cast<__int64>(**value_));
+				break;
+			default:
+				throw common::error::asm_bad_operand_size;
+				break;
+			}
 		}
 
-		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset) override{
+		virtual void read_constant(char *buffer, std::size_t size) override{
 			switch (size){
 			case 1u://Byte
-				return read_constant_<__int8>(buffer, offset);
+				return read_constant_<__int8>(buffer);
 			case 2u://Word
-				return read_constant_<__int16>(buffer, offset);
+				return read_constant_<__int16>(buffer);
 			case 4u://Double Word
-				return read_constant_<__int32>(buffer, offset);
+				return read_constant_<__int32>(buffer);
 			case 8u://Quad Word
-				return read_constant_<__int64>(buffer, offset);
+				return read_constant_<__int64>(buffer);
 			default:
 				break;
 			}
@@ -52,13 +67,12 @@ namespace elang::easm{
 
 	protected:
 		template <typename target_type>
-		void read_constant_(char *buffer, std::size_t &offset){
+		void read_constant_(char *buffer){
 			if (*value_ == nullptr)
 				throw common::error::asm_label_not_found;
 
 			auto value = static_cast<target_type>(**value_);
 			memcpy(buffer, &value, sizeof(target_type));
-			offset += sizeof(target_type);
 		}
 
 		unsigned __int64 **value_;

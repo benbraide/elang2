@@ -10,12 +10,10 @@ namespace elang::easm{
 	public:
 		virtual ~uninitialized_instruction_operand() = default;
 
-		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset) override{
-			offset += ((size == 10u) ? 8u : size);
-		}
+		virtual void read_constant(char *buffer, std::size_t size) override{}
 
 		virtual std::size_t encoded_size(std::size_t target_size) const override{
-			return target_size;
+			return ((target_size == 10u) ? 8u : target_size);
 		}
 	};
 }

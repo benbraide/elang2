@@ -29,11 +29,11 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void load(memory::table &mem_tbl, memory::register_table &reg_tbl){
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 
 			if (mem_tbl.read_bytes<operand_info::format>(reg_tbl.instruction_pointer()->read<unsigned __int64>())->type == operand_info::type::memory){
 				operand_info::destination_type src;
-				operand_info::extract_destination(mem_tbl, reg_tbl, src);
+				operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, src);
 				operand_info::destination_query::write(dest, static_cast<target_type>(std::get<operand_info::memory_destination>(src).address));
 			}
 			else//Use value

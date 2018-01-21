@@ -32,7 +32,7 @@ namespace elang::byte_code{
 			auto info = mem_tbl.read_bytes<comparison_info>(iptr);
 
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 
 			auto flag = '\0';
 			if (reg_tbl.has_flag(memory::register_flag::less))

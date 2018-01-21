@@ -61,12 +61,6 @@ namespace elang::grammar{
 		static auto keyword(const char *value){
 			return keyword(x3::lit(value));
 		}
-
-		/*static void identifier_to_string(const elang_identifier_ast &ast, std::string &value){
-			value.reserve(value.size() + ast.rest.size() + 2);
-			value.append(1, ast.first);
-			value.append(ast.rest.data(), ast.rest.size());
-		}*/
 	};
 
 	BOOST_SPIRIT_DEFINE(ELANG_GRAMMAR_RULE_NAME(elang_identifier));

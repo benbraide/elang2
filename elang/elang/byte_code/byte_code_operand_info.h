@@ -89,7 +89,7 @@ namespace elang::byte_code{
 			case type::register_:
 			{
 				auto reg = reg_tbl.find(fmt->value);
-				if (reg == nullptr)//Error
+				if (reg == nullptr || (reg = reg->match(sizeof(target_type))) == nullptr)//Error
 					throw common::error::register_not_found;
 
 				if (debug::debugger != nullptr){
@@ -167,7 +167,7 @@ namespace elang::byte_code{
 			throw common::error::byte_code_unknown_operand_type;
 		}
 
-		static void extract_destination(memory::table &mem_table, memory::register_table &reg_tbl, destination_type &dest){
+		static void extract_destination(std::size_t size, memory::table &mem_table, memory::register_table &reg_tbl, destination_type &dest){
 			auto iptr = reg_tbl.instruction_pointer()->read<unsigned __int64>();
 			auto fmt = mem_table.read_bytes<format>(iptr);
 
@@ -176,7 +176,7 @@ namespace elang::byte_code{
 			case type::register_:
 			{
 				auto reg = reg_tbl.find(fmt->value);
-				if (reg == nullptr)//Error
+				if (reg == nullptr || (reg = reg->match(size)) == nullptr)//Error
 					throw common::error::register_not_found;
 
 				dest = reg;

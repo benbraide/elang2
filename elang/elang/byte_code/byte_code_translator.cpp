@@ -61,8 +61,8 @@ void elang::byte_code::translator::translate(memory::table &mem_tbl, unsigned __
 	memory::stack stack(mem_tbl, translator::stack_size);
 
 	reg_tbl.instruction_pointer()->write(entry);
-	reg_tbl.base_pointer()->write(module_size);
-	reg_tbl.stack_pointer()->write(module_size);
+	reg_tbl.base_pointer()->write(0);
+	reg_tbl.stack_pointer()->write(0);
 
 	translate_(mem_tbl, reg_tbl, stack);
 }

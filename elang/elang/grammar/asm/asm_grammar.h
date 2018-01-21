@@ -22,9 +22,9 @@ namespace elang::grammar{
 		asm_type_symbols(){
 			add
 				("byte",	1u)
-				("dword",	2u)
-				("qword",	4u)
-				("word",	8u)
+				("word",	2u)
+				("dword",	4u)
+				("qword",	8u)
 				("float",	10u)
 				;
 		}
@@ -138,10 +138,10 @@ namespace elang::grammar{
 	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset_explicit)
-	ELANG_GRAMMAR_RULE_DEF(asm_offset_explicit) = (x3::no_case["offset"] > ELANG_GRAMMAR_RULE_NAME(asm_offset));
+	ELANG_GRAMMAR_RULE_DEF(asm_offset_explicit) = (x3::no_case[utils::keyword("offset")] > ELANG_GRAMMAR_RULE_NAME(asm_offset));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_memory)
-	ELANG_GRAMMAR_RULE_DEF(asm_memory) = (-x3::no_case[asm_type_symbols_] >> '[' > -x3::no_case["offset"] >> ELANG_GRAMMAR_RULE_NAME(asm_offset) > ']');
+	ELANG_GRAMMAR_RULE_DEF(asm_memory) = (-x3::no_case[asm_type_symbols_] >> '[' > -x3::no_case[utils::keyword("offset")] > ELANG_GRAMMAR_RULE_NAME(asm_offset) > ']');
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_operand)
 	ELANG_GRAMMAR_RULE_DEF(asm_operand) = (

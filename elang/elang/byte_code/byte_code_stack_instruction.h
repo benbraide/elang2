@@ -12,10 +12,12 @@ namespace elang::byte_code{
 				throw common::error::stack_overflow;
 
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
-			operand_info::destination_query::read(dest, stack.ptr(), size);
+			operand_info::extract_destination(size, mem_tbl, reg_tbl, dest);
 
-			reg_tbl.stack_pointer()->write(reinterpret_cast<__int64>(stack.ptr() + sizeof(std::size_t)));
+			auto sptr = stack.ptr();
+			stack.push(size);//Verify push
+
+			operand_info::destination_query::read(dest, sptr, size);
 		}
 	};
 
@@ -25,10 +27,12 @@ namespace elang::byte_code{
 				throw common::error::stack_underflow;
 
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
-			operand_info::destination_query::write(dest, stack.ptr(), size);
+			operand_info::extract_destination(size, mem_tbl, reg_tbl, dest);
 
-			reg_tbl.stack_pointer()->write(reinterpret_cast<__int64>(stack.ptr() - sizeof(std::size_t)));
+			auto sptr = stack.ptr();
+			stack.pop(size);//Verify pop
+
+			operand_info::destination_query::write(dest, sptr, size);
 		}
 	};
 

@@ -5,11 +5,11 @@ elang::memory::stack::stack(table &tbl, size_type size)
 	ptr_ = block_->data.get();
 }
 
-char *elang::memory::stack::push(size_type size){
+std::size_t elang::memory::stack::push(size_type size){
 	return push(size, nullptr);
 }
 
-char *elang::memory::stack::push(size_type size, const char *buffer){
+std::size_t elang::memory::stack::push(size_type size, const char *buffer){
 	if (static_cast<size_type>(block_->size - (ptr_ - block_->data.get())) < size)
 		throw common::error::stack_overflow;
 
@@ -17,18 +17,18 @@ char *elang::memory::stack::push(size_type size, const char *buffer){
 		memcpy(ptr_, buffer, size);
 
 	ptr_ += size;//Advance pointer
-	return ptr_;
+	return static_cast<std::size_t>(ptr_ - block_->data.get());
 }
 
-char *elang::memory::stack::push(const memory_register &reg){
+std::size_t elang::memory::stack::push(const memory_register &reg){
 	return push(reg.size(), reg.data());
 }
 
-char *elang::memory::stack::pop(size_type size){
+std::size_t elang::memory::stack::pop(size_type size){
 	return pop(size, nullptr);
 }
 
-char *elang::memory::stack::pop(size_type size, char *buffer){
+std::size_t elang::memory::stack::pop(size_type size, char *buffer){
 	if (static_cast<size_type>(ptr_ - block_->data.get()) < size)
 		throw common::error::stack_underflow;
 
@@ -36,10 +36,10 @@ char *elang::memory::stack::pop(size_type size, char *buffer){
 	if (buffer != nullptr)//Copy data
 		memcpy(buffer, ptr_, size);
 
-	return ptr_;
+	return static_cast<std::size_t>(ptr_ - block_->data.get());
 }
 
-char *elang::memory::stack::pop(memory_register &reg){
+std::size_t elang::memory::stack::pop(memory_register &reg){
 	return pop(reg.size(), reg.data());
 }
 
@@ -53,4 +53,8 @@ char *elang::memory::stack::base() const{
 
 char *elang::memory::stack::ptr() const{
 	return ptr_;
+}
+
+std::size_t elang::memory::stack::offset() const{
+	return static_cast<std::size_t>(ptr_ - block_->data.get());
 }

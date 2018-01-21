@@ -44,7 +44,7 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void eval(memory::table &mem_tbl, memory::register_table &reg_tbl, operator_id id){
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 
 			switch (id){
 			case operator_id::not:
@@ -89,7 +89,7 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void eval(memory::table &mem_tbl, memory::register_table &reg_tbl, operator_id id){
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 
 			auto left = operand_info::destination_query::read<target_type>(dest);
 			auto right = operand_info::extract_source<target_type>(mem_tbl, reg_tbl);
@@ -127,7 +127,7 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void evalf(memory::table &mem_tbl, memory::register_table &reg_tbl, operator_id id){
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 
 			auto left = operand_info::destination_query::read<target_type>(dest);
 			auto right = operand_info::extract_source<target_type>(mem_tbl, reg_tbl);

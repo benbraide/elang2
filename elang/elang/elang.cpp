@@ -7,7 +7,7 @@ int main(){
 	elang::common::string_output_writer writer(log);
 	elang::byte_code::debug dbg(writer);
 
-	std::string source(".global main\nsection .text\nmain:\nmov rax, 9\nadd [rsp + 45], rax\nmov rax, 0\nsyscall");
+	std::string source(".global main\nsection .text\nmain:\nmov rax, 9\nadd [rsp + 45], al\nmov ax, 0\nsyscall");
 	elang::easm::instruction_translator::translate(source.begin(), source.end());
 
 	return 0;

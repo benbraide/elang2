@@ -13,7 +13,7 @@ namespace elang::easm{
 
 		virtual ~string_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, memory::register_table &reg_tbl) override{
 			if (value_.size() != 1u)
 				throw common::error::asm_bad_operand_type;
 
@@ -26,19 +26,18 @@ namespace elang::easm{
 
 			writer.write(format);
 			writer.write(value_.data(), target_size);
-			size += (target_size + sizeof(byte_code::operand_info::format));
 		}
 
-		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset) override{
+		virtual void read_constant(char *buffer, std::size_t size) override{
 			switch (size){
 			case 1u://Byte
-				return read_constant_<__int8>(buffer, offset);
+				return read_constant_<__int8>(buffer);
 			case 2u://Word
-				return read_constant_<__int16>(buffer, offset);
+				return read_constant_<__int16>(buffer);
 			case 4u://Double Word
-				return read_constant_<__int32>(buffer, offset);
+				return read_constant_<__int32>(buffer);
 			case 8u://Quad Word
-				return read_constant_<__int64>(buffer, offset);
+				return read_constant_<__int64>(buffer);
 			default:
 				break;
 			}
@@ -62,9 +61,8 @@ namespace elang::easm{
 
 	protected:
 		template <typename target_type>
-		void read_constant_(char *buffer, std::size_t &offset){
+		void read_constant_(char *buffer){
 			memcpy(buffer, value_.data(), value_.size());
-			offset += count_string(value_.size(), sizeof(target_type));
 		}
 
 		std::string value_;

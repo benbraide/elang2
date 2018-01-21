@@ -29,7 +29,7 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void copy(memory::table &mem_tbl, memory::register_table &reg_tbl){
 			operand_info::destination_type dest;
-			operand_info::extract_destination(mem_tbl, reg_tbl, dest);
+			operand_info::extract_destination(sizeof(target_type), mem_tbl, reg_tbl, dest);
 			operand_info::destination_query::write(dest, operand_info::extract_source<target_type>(mem_tbl, reg_tbl));
 		}
 	};

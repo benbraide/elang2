@@ -16,28 +16,27 @@ namespace elang::easm{
 
 		virtual ~immediate_instruction_operand() = default;
 
-		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, std::size_t &size) override{
+		virtual void encode(std::size_t target_size, common::binary_output_writer &writer, memory::register_table &reg_tbl) override{
 			byte_code::operand_info::format format;
 			format.type = byte_code::operand_info::type::immediate;
 			format.value = static_cast<unsigned char>(target_size);
 
 			writer.write(format);
-			read_constant(writer.allocate((target_size == 10u) ? 8u : target_size), target_size, size);
-			size += sizeof(byte_code::operand_info::format);
+			read_constant(writer.allocate((target_size == 10u) ? 8u : target_size), target_size);
 		}
 
-		virtual void read_constant(char *buffer, std::size_t size, std::size_t &offset) override{
+		virtual void read_constant(char *buffer, std::size_t size) override{
 			switch (size){
 			case 1u://Byte
-				return read_constant_<__int8>(buffer, offset);
+				return read_constant_<__int8>(buffer);
 			case 2u://Word
-				return read_constant_<__int16>(buffer, offset);
+				return read_constant_<__int16>(buffer);
 			case 4u://Double Word
-				return read_constant_<__int32>(buffer, offset);
+				return read_constant_<__int32>(buffer);
 			case 8u://Quad Word
-				return read_constant_<__int64>(buffer, offset);
+				return read_constant_<__int64>(buffer);
 			case 10u://Float
-				return read_constant_<long double>(buffer, offset);
+				return read_constant_<long double>(buffer);
 			default:
 				break;
 			}
@@ -55,10 +54,9 @@ namespace elang::easm{
 
 	protected:
 		template <typename target_type>
-		void read_constant_(char *buffer, std::size_t &offset){
+		void read_constant_(char *buffer){
 			auto target = static_cast<target_type>(value_);
 			memcpy(buffer, &target, sizeof(target_type));
-			offset += sizeof(target_type);
 		}
 
 		value_type value_;
