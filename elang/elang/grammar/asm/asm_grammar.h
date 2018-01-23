@@ -123,10 +123,10 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_string) = ("'" > x3::lexeme[*((x3::char_('\\') >> "'") | ~x3::char_("'"))] > "'");
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_section)
-	ELANG_GRAMMAR_RULE_DEF(asm_section) = x3::no_case[(utils::keyword("section") > asm_section_symbols_)];
+	ELANG_GRAMMAR_RULE_DEF(asm_section) = x3::no_case[(utils::keyword("section") > asm_section_symbols_ > (x3::eol | x3::eoi))];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_label)
-	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(elang_identifier) > ":"];
+	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(elang_identifier) > ":" > (x3::eol | x3::eoi)];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset_item)
 	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_value) | ELANG_GRAMMAR_RULE_NAME(elang_identifier)));
@@ -155,25 +155,27 @@ namespace elang::grammar{
 	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_instruction)
-	ELANG_GRAMMAR_RULE_DEF(asm_instruction) = (utils::keyword(x3::no_case[asm_mnemonic_symbols_]) >> -(ELANG_GRAMMAR_RULE_NAME(asm_operand) % ","));
+	ELANG_GRAMMAR_RULE_DEF(asm_instruction) = (
+		utils::keyword(x3::no_case[asm_mnemonic_symbols_]) >> -(ELANG_GRAMMAR_RULE_NAME(asm_operand) % ",") > (x3::eol | x3::eoi)
+	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_times_instruction)
 	ELANG_GRAMMAR_RULE_DEF(asm_times_instruction) = (x3::no_case[utils::keyword("times")] >> x3::uint_ >> ELANG_GRAMMAR_RULE_NAME(asm_instruction));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_stack)
-	ELANG_GRAMMAR_RULE_DEF(asm_stack) = (x3::no_case[utils::keyword(".stack")] > x3::uint64);
+	ELANG_GRAMMAR_RULE_DEF(asm_stack) = (x3::no_case[utils::keyword(".stack")] > x3::uint64 > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_global)
-	ELANG_GRAMMAR_RULE_DEF(asm_global) = (x3::no_case[utils::keyword(".global")] > ELANG_GRAMMAR_RULE_NAME(elang_identifier));
+	ELANG_GRAMMAR_RULE_DEF(asm_global) = (x3::no_case[utils::keyword(".global")] > ELANG_GRAMMAR_RULE_NAME(elang_identifier) > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_dzero)
-	ELANG_GRAMMAR_RULE_DEF(asm_dzero) = (x3::no_case[utils::keyword(".zero")] > x3::uint64);
+	ELANG_GRAMMAR_RULE_DEF(asm_dzero) = (x3::no_case[utils::keyword(".zero")] > x3::uint64 > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_dstring)
-	ELANG_GRAMMAR_RULE_DEF(asm_dstring) = (x3::no_case[utils::keyword(".string")] > ELANG_GRAMMAR_RULE_NAME(asm_string));
+	ELANG_GRAMMAR_RULE_DEF(asm_dstring) = (x3::no_case[utils::keyword(".string")] > ELANG_GRAMMAR_RULE_NAME(asm_string) > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_instruction_set_value)
-	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set_value) = ((
+	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set_value) = (
 		ELANG_GRAMMAR_RULE_NAME(asm_section) |
 		ELANG_GRAMMAR_RULE_NAME(asm_times_instruction) |
 		ELANG_GRAMMAR_RULE_NAME(asm_stack) |
@@ -182,10 +184,10 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_dstring) |
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction) |
 		ELANG_GRAMMAR_RULE_NAME(asm_label)
-	) > x3::omit[(x3::eol | x3::eoi)]);
+	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_instruction_set)
-	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set) = *ELANG_GRAMMAR_RULE_NAME(asm_instruction_set_value);
+	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set) = *((x3::eol >> x3::attr(false)) | ELANG_GRAMMAR_RULE_NAME(asm_instruction_set_value));
 
 	ELANG_GRAMMAR_DECLARE_NO_AST_RULE(asm_skip)
 	ELANG_GRAMMAR_RULE_DEF(asm_skip) = ((x3::space - x3::eol) | (';' >> *x3::omit[(x3::char_ - x3::eol)]));

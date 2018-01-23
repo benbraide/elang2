@@ -1,0 +1,9 @@
+section .text
+	.global main
+
+main:
+	mov rax, 2				;Write
+	mov bl, 'b'				;Character to write
+	syscall
+	mov rax, 0				;Exit
+	syscall

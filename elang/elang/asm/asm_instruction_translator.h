@@ -5,6 +5,8 @@
 
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
 
+#include <fstream>
+
 #include <boost/iostreams/device/mapped_file.hpp>
 
 #include "../common/file_resource.h"
@@ -44,6 +46,14 @@ namespace elang::easm{
 			auto stack_size = table.stack_size();
 
 			auto path = common::file_destination::resolve(dir, file, "ebcd");
+			std::ofstream file_creator(path.c_str(), std::ios::binary | std::ios::trunc);
+			if (!file_creator.is_open())
+				throw common::error::file_not_opened;
+
+			file_creator.seekp(size + 40u);
+			file_creator.write("", 1);
+			file_creator.close();
+
 			boost::iostreams::mapped_file source(path, boost::iostreams::mapped_file::readwrite, (size + 41u));
 			if (!source.is_open())
 				throw common::error::file_not_opened;

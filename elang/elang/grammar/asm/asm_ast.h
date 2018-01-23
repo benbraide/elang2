@@ -134,7 +134,8 @@ namespace elang::grammar{
 		ELANG_AST_NAME(asm_stack),
 		ELANG_AST_NAME(asm_global),
 		ELANG_AST_NAME(asm_dzero),
-		ELANG_AST_NAME(asm_dstring)
+		ELANG_AST_NAME(asm_dstring),
+		bool
 	)
 
 	ELANG_AST_DECLARE_SINGLE(asm_instruction_set, std::vector<ELANG_AST_NAME(asm_instruction_set_value)>)
@@ -143,6 +144,8 @@ namespace elang::grammar{
 	public:
 		explicit asm_ast_visitor(easm::instruction_table &table)
 			: table_(table){}
+
+		void operator ()(bool) const{}
 
 		void operator ()(ELANG_AST_NAME(asm_dstring) &ast) const{
 			std::vector<std::shared_ptr<elang::easm::instruction_operand_object>> operands({ operator()(ast.value) });
