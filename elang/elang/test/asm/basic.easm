@@ -1,9 +1,21 @@
+section .rodata
+txt:
+	.string 'basic text'
+len:
+	dq offset $ - txt
 section .text
 	.global main
-
 main:
 	mov rax, 2				;Write
 	mov bl, 'b'				;Character to write
 	syscall
+	mov rcx, [len]			;Copy string length
+	mov rdi, 0				;Counter
+loop_:
+	mov rax, 2				;Write
+	mov bl, [txt + rdi]		;Character at position
+	syscall
+	inc rdi					;Increment counter
+	loop loop_
 	mov rax, 0				;Exit
 	syscall

@@ -27,9 +27,11 @@ namespace elang::byte_code{
 		template <typename target_type>
 		static void loop(memory::table &mem_tbl, memory::register_table &reg_tbl){
 			auto reg = reg_tbl.find("rcx");
+			auto value = operand_info::extract_source<target_type>(mem_tbl, reg_tbl);
+
 			if (reg->read<unsigned __int64>() != 0u){
 				reg->write(reg->read<unsigned __int64>() - 1u);
-				reg_tbl.instruction_pointer()->write(operand_info::extract_source<target_type>(mem_tbl, reg_tbl));
+				reg_tbl.instruction_pointer()->write(value);
 			}
 		}
 	};

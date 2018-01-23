@@ -153,7 +153,7 @@ namespace elang::grammar{
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_dzero) &ast) const{
-
+			table_.add(std::make_shared<elang::easm::dz_instruction>(ast.value));
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_global) &ast) const{
@@ -190,6 +190,9 @@ namespace elang::grammar{
 		}
 
 		std::shared_ptr<elang::easm::instruction_operand_object> operator ()(ELANG_AST_NAME(elang_identifier) &ast) const{
+			if (ast.value.size() == 1u && ast.value[0] == '$')//Position operand
+				return std::make_shared<elang::easm::position_instruction_operand>();
+
 			if (ast.value.size() <= 5u){//Try register
 				auto value = ast.value;
 				for (auto &c : value)

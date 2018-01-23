@@ -16,6 +16,8 @@ namespace elang::easm{
 		typedef std::shared_ptr<instruction_operand_object> operand_object_ptr_type;
 		typedef std::vector<operand_object_ptr_type> operand_object_ptr_list_type;
 
+		instruction_object(){}
+
 		explicit instruction_object(operand_object_ptr_list_type &&operands)
 			: operands_(std::move(operands)){}
 

@@ -54,7 +54,7 @@ namespace elang::easm{
 		}
 
 		static std::size_t count_string(std::size_t size, std::size_t actual_size){
-			return ((size + (actual_size + 1u) - ((size - 1u) & actual_size)) / actual_size);
+			return (size * actual_size);
 		}
 	};
 }

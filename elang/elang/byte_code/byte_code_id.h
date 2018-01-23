@@ -124,6 +124,7 @@ namespace elang::byte_code{
 		dd,
 		dq,
 		df,
+		dz,
 	};
 }
 

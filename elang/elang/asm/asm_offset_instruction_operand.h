@@ -52,16 +52,21 @@ namespace elang::easm{
 
 		virtual std::size_t encoded_size(std::size_t target_size) const override{
 			std::size_t size = 0;
-			for (auto item : list_)//Accumulate size
+			for (auto &item : list_)//Accumulate size
 				size += (item.value->encoded_size(target_size) + sizeof(byte_code::operand_info::offset_op_type));
 			return (size + sizeof(byte_code::operand_info::format));
+		}
+
+		virtual void update_position(unsigned __int64 value) override{
+			for (auto &item : list_)
+				item.value->update_position(value);
 		}
 
 	protected:
 		template <typename target_type>
 		void read_constant_(char *buffer){
 			auto sum = static_cast<target_type>(0), value = static_cast<target_type>(0);
-			for (auto item : list_){//Accumulate
+			for (auto &item : list_){//Accumulate
 				item.value->read_constant((char *)(&value), sizeof(target_type));
 				if (item.op == byte_code::operand_info::offset_op_type::sub)
 					sum -= value;
