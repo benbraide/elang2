@@ -1,15 +1,15 @@
 section .rodata
 txt:
 	.string 'basic text'
-len:
-	dq offset $ - txt
+len equ $ - txt
 section .text
 	.global main
 main:
 	mov rax, 2				;Write
 	mov bl, 'b'				;Character to write
 	syscall
-	mov rcx, [len]			;Copy string length
+	mov rcx, len			;Copy string length
+	dec rcx					;Decrement for one before loop
 	mov rdi, 0				;Counter
 loop_:
 	mov rax, 2				;Write

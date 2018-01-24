@@ -82,15 +82,28 @@ namespace elang::grammar{
 				("sar", asm_instruction_id::sar)
 				("test", asm_instruction_id::test)
 				("cmp", asm_instruction_id::cmp)
+				;
+		}
+	} asm_mnemonic_symbols_;
+
+	struct asm_int_decl_mnemonic_symbols : x3::symbols<asm_instruction_id>{
+		asm_int_decl_mnemonic_symbols(){
+			add
 				("db", asm_instruction_id::db)
 				("dw", asm_instruction_id::dw)
 				("dd", asm_instruction_id::dd)
 				("dq", asm_instruction_id::dq)
-				("df", asm_instruction_id::df)
-				("dz", asm_instruction_id::dz)
 				;
 		}
-	} asm_mnemonic_symbols_;
+	} asm_int_decl_mnemonic_symbols_;
+
+	struct asm_flt_decl_mnemonic_symbols : x3::symbols<asm_instruction_id>{
+		asm_flt_decl_mnemonic_symbols(){
+			add
+				("df", asm_instruction_id::df)
+				;
+		}
+	} asm_flt_decl_mnemonic_symbols_;
 
 	struct asm_offset_op_symbols : x3::symbols<elang::byte_code::operand_info::offset_op_type>{
 		asm_offset_op_symbols(){
@@ -100,6 +113,108 @@ namespace elang::grammar{
 				;
 		}
 	} asm_offset_op_symbols_;
+
+	struct asm_integral_operator_symbols : x3::symbols<asm_operator_id>{
+		asm_integral_operator_symbols(){
+			add
+				("+", asm_operator_id::add)
+				("-", asm_operator_id::sub)
+				("*", asm_operator_id::mult)
+				("/", asm_operator_id::div)
+				("%", asm_operator_id::mod)
+				("&", asm_operator_id::and_)
+				("|", asm_operator_id::xor_)
+				("^", asm_operator_id::or_)
+				("<<", asm_operator_id::sal)
+				(">>", asm_operator_id::sar)
+				;
+		}
+	} asm_integral_operator_symbols_;
+
+	struct asm_float_operator_symbols : x3::symbols<asm_operator_id>{
+		asm_float_operator_symbols(){
+			add
+				("+", asm_operator_id::add)
+				("-", asm_operator_id::sub)
+				("*", asm_operator_id::mult)
+				("/", asm_operator_id::div)
+				;
+		}
+	} asm_float_operator_symbols_;
+
+	auto asm_int_expression_begin = [](auto &ctx){
+		x3::_val(ctx) = boost::get<ELANG_AST_NAME(asm_integral_value)>(x3::_attr(ctx));
+	};
+
+	auto asm_flt_expression_begin = [](auto &ctx){
+		x3::_val(ctx) = boost::get<ELANG_AST_NAME(asm_float_value)>(x3::_attr(ctx));
+	};
+
+	auto asm_integral_expr = [](auto &ctx){
+		switch (boost::fusion::at<boost::mpl::int_<0>>(x3::_attr(ctx))){
+		case asm_operator_id::sub:
+			x3::_val(ctx).value = (x3::_val(ctx).value -
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::mult:
+			x3::_val(ctx).value = (x3::_val(ctx).value *
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::div:
+			x3::_val(ctx).value = (x3::_val(ctx).value /
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::mod:
+			x3::_val(ctx).value = (x3::_val(ctx).value %
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::and_:
+			x3::_val(ctx).value = (x3::_val(ctx).value &
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::xor_:
+			x3::_val(ctx).value = (x3::_val(ctx).value ^
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::or_:
+			x3::_val(ctx).value = (x3::_val(ctx).value |
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::sal:
+			x3::_val(ctx).value = (x3::_val(ctx).value <<
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::sar:
+			x3::_val(ctx).value = (x3::_val(ctx).value >>
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		default:
+			x3::_val(ctx).value = (x3::_val(ctx).value +
+				boost::get<ELANG_AST_NAME(asm_integral_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		}
+	};
+
+	auto asm_float_expr = [](auto &ctx){
+		switch (boost::fusion::at<boost::mpl::int_<0>>(x3::_attr(ctx))){
+		case asm_operator_id::sub:
+			x3::_val(ctx).value = (x3::_val(ctx).value -
+				boost::get<ELANG_AST_NAME(asm_float_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::mult:
+			x3::_val(ctx).value = (x3::_val(ctx).value *
+				boost::get<ELANG_AST_NAME(asm_float_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		case asm_operator_id::div:
+			x3::_val(ctx).value = (x3::_val(ctx).value /
+				boost::get<ELANG_AST_NAME(asm_float_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		default:
+			x3::_val(ctx).value = (x3::_val(ctx).value +
+				boost::get<ELANG_AST_NAME(asm_float_value)>(boost::fusion::at<boost::mpl::int_<1>>(x3::_attr(ctx))).value);
+			break;
+		}
+	};
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_uninitialized_value)
 	ELANG_GRAMMAR_RULE_DEF(asm_uninitialized_value) = x3::char_('?');
@@ -119,6 +234,30 @@ namespace elang::grammar{
 		x3::long_long
 	);
 
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_integral_expression, asm_integral_value)
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_integral_group, asm_integral_value)
+
+	ELANG_GRAMMAR_RULE_DEF(asm_integral_group) = ('(' > ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) > ')');
+	ELANG_GRAMMAR_RULE_DEF(asm_integral_expression) = (
+		(ELANG_GRAMMAR_RULE_NAME(asm_integral_group) | ELANG_GRAMMAR_RULE_NAME(asm_integral_value))[asm_int_expression_begin] >>
+		*(
+			asm_integral_operator_symbols_ >
+			(ELANG_GRAMMAR_RULE_NAME(asm_integral_group) | ELANG_GRAMMAR_RULE_NAME(asm_integral_value))
+		)[asm_integral_expr]
+	);
+
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_float_expression, asm_float_value)
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_float_group, asm_float_value)
+
+	ELANG_GRAMMAR_RULE_DEF(asm_float_group) = ('(' > ELANG_GRAMMAR_RULE_NAME(asm_float_expression) > ')');
+	ELANG_GRAMMAR_RULE_DEF(asm_float_expression) = (
+		(ELANG_GRAMMAR_RULE_NAME(asm_float_group) | ELANG_GRAMMAR_RULE_NAME(asm_float_value))[asm_flt_expression_begin] >>
+		*(
+			asm_float_operator_symbols_ >
+			(ELANG_GRAMMAR_RULE_NAME(asm_float_group) | ELANG_GRAMMAR_RULE_NAME(asm_float_value))
+		)[asm_float_expr]
+	);
+
 	ELANG_GRAMMAR_DECLARE_RULE(asm_string)
 	ELANG_GRAMMAR_RULE_DEF(asm_string) = ("'" > x3::lexeme[*((x3::char_('\\') >> "'") | ~x3::char_("'"))] > "'");
 
@@ -129,11 +268,13 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(elang_identifier) > ":" > (x3::eol | x3::eoi)];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset_item)
-	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_value) | ELANG_GRAMMAR_RULE_NAME(elang_identifier)));
+	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (
+		asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(elang_identifier))
+	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset)
 	ELANG_GRAMMAR_RULE_DEF(asm_offset) = (
-		(ELANG_GRAMMAR_RULE_NAME(asm_integral_value) | ELANG_GRAMMAR_RULE_NAME(elang_identifier))
+		(ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(elang_identifier))
 		>> *ELANG_GRAMMAR_RULE_NAME(asm_offset_item)
 	);
 
@@ -159,8 +300,40 @@ namespace elang::grammar{
 		utils::keyword(x3::no_case[asm_mnemonic_symbols_]) >> -(ELANG_GRAMMAR_RULE_NAME(asm_operand) % ",") > (x3::eol | x3::eoi)
 	);
 
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_int_decl_instruction, asm_instruction)
+	ELANG_GRAMMAR_RULE_DEF(asm_int_decl_instruction) = (
+		utils::keyword(x3::no_case[asm_int_decl_mnemonic_symbols_]) > (ELANG_GRAMMAR_RULE_NAME(asm_offset) % ",") > (x3::eol | x3::eoi)
+	);
+
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_flt_decl_instruction, asm_instruction)
+	ELANG_GRAMMAR_RULE_DEF(asm_flt_decl_instruction) = (
+		utils::keyword(x3::no_case[asm_flt_decl_mnemonic_symbols_]) > (ELANG_GRAMMAR_RULE_NAME(asm_float_expression) % ",") > (x3::eol | x3::eoi)
+	);
+
+	ELANG_GRAMMAR_DECLARE_RULE(asm_equ_instruction)
+	ELANG_GRAMMAR_RULE_DEF(asm_equ_instruction) = (
+		ELANG_GRAMMAR_RULE_NAME(elang_identifier) >> x3::no_case[utils::keyword("equ")] >
+		ELANG_GRAMMAR_RULE_NAME(asm_offset) > (x3::eol | x3::eoi)
+	);
+
 	ELANG_GRAMMAR_DECLARE_RULE(asm_times_instruction)
-	ELANG_GRAMMAR_RULE_DEF(asm_times_instruction) = (x3::no_case[utils::keyword("times")] >> x3::uint_ >> ELANG_GRAMMAR_RULE_NAME(asm_instruction));
+	ELANG_GRAMMAR_RULE_DEF(asm_times_instruction) = (
+		x3::no_case[utils::keyword("times")] > x3::uint_ >
+		(ELANG_GRAMMAR_RULE_NAME(asm_instruction) | ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction) | ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction))
+	);
+
+	ELANG_GRAMMAR_DECLARE_RULE2(asm_decl_times_instruction, asm_times_instruction)
+	ELANG_GRAMMAR_RULE_DEF(asm_decl_times_instruction) = (
+		x3::no_case[utils::keyword("times")] > x3::uint_ >
+		(ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction) | ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction))
+	);
+
+	ELANG_GRAMMAR_DECLARE_RULE(asm_named_decl)
+	ELANG_GRAMMAR_RULE_DEF(asm_named_decl) = (
+		ELANG_GRAMMAR_RULE_NAME(elang_identifier) >>
+		(ELANG_GRAMMAR_RULE_NAME(asm_decl_times_instruction) | ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction) |
+			ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction))
+	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_stack)
 	ELANG_GRAMMAR_RULE_DEF(asm_stack) = (x3::no_case[utils::keyword(".stack")] > x3::uint64 > (x3::eol | x3::eoi));
@@ -178,11 +351,15 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_instruction_set_value) = (
 		ELANG_GRAMMAR_RULE_NAME(asm_section) |
 		ELANG_GRAMMAR_RULE_NAME(asm_times_instruction) |
+		ELANG_GRAMMAR_RULE_NAME(asm_named_decl) |
+		ELANG_GRAMMAR_RULE_NAME(asm_equ_instruction) |
 		ELANG_GRAMMAR_RULE_NAME(asm_stack) |
 		ELANG_GRAMMAR_RULE_NAME(asm_global) |
 		ELANG_GRAMMAR_RULE_NAME(asm_dzero) |
 		ELANG_GRAMMAR_RULE_NAME(asm_dstring) |
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction) |
+		ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction) |
+		ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction) |
 		ELANG_GRAMMAR_RULE_NAME(asm_label)
 	);
 
@@ -196,6 +373,10 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_uninitialized_value),
 		ELANG_GRAMMAR_RULE_NAME(asm_float_value),
 		ELANG_GRAMMAR_RULE_NAME(asm_integral_value),
+		ELANG_GRAMMAR_RULE_NAME(asm_integral_group),
+		ELANG_GRAMMAR_RULE_NAME(asm_integral_expression),
+		ELANG_GRAMMAR_RULE_NAME(asm_float_group),
+		ELANG_GRAMMAR_RULE_NAME(asm_float_expression),
 		ELANG_GRAMMAR_RULE_NAME(asm_string),
 		ELANG_GRAMMAR_RULE_NAME(asm_section),
 		ELANG_GRAMMAR_RULE_NAME(asm_label),
@@ -205,7 +386,12 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_memory),
 		ELANG_GRAMMAR_RULE_NAME(asm_operand),
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction),
+		ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction),
+		ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction),
+		ELANG_GRAMMAR_RULE_NAME(asm_equ_instruction),
 		ELANG_GRAMMAR_RULE_NAME(asm_times_instruction),
+		ELANG_GRAMMAR_RULE_NAME(asm_decl_times_instruction),
+		ELANG_GRAMMAR_RULE_NAME(asm_named_decl),
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction_set_value),
 		ELANG_GRAMMAR_RULE_NAME(asm_instruction_set),
 		ELANG_GRAMMAR_RULE_NAME(asm_stack),

@@ -12,8 +12,8 @@
 #define ELANG_GRAMMAR_DECLARE_RULE(name)\
 boost::spirit::x3::rule<class ELANG_GRAMMAR_RULE_NAME(name), ELANG_AST_QNAME(name)> const ELANG_GRAMMAR_RULE_NAME(name) = ELANG_GRAMMAR_RULE_NAME_STR(name);
 
-#define ELANG_GRAMMAR_DECLARE_RULE2(name)\
-boost::spirit::x3::rule<ELANG_GRAMMAR_RULE_NAME(name), ELANG_AST_QNAME(name)> const ELANG_GRAMMAR_RULE_NAME(name) = ELANG_GRAMMAR_RULE_NAME_STR(name);
+#define ELANG_GRAMMAR_DECLARE_RULE2(name, ast)\
+boost::spirit::x3::rule<class ELANG_GRAMMAR_RULE_NAME(name), ELANG_AST_QNAME(ast)> const ELANG_GRAMMAR_RULE_NAME(name) = ELANG_GRAMMAR_RULE_NAME_STR(name);
 
 #define ELANG_GRAMMAR_DECLARE_NO_AST_RULE(name)\
 boost::spirit::x3::rule<class ELANG_GRAMMAR_RULE_NAME(name)> const ELANG_GRAMMAR_RULE_NAME(name) = ELANG_GRAMMAR_RULE_NAME_STR(name);

@@ -32,6 +32,19 @@
 namespace elang::grammar{
 	ELANG_AST_DECLARE_SINGLE(asm_uninitialized_value, char)
 
+	enum class asm_operator_id{
+		add,
+		sub,
+		mult,
+		div,
+		mod,
+		and_,
+		xor_,
+		or_,
+		sal,
+		sar,
+	};
+
 	ELANG_AST_DECLARE_SINGLE(asm_integral_value, __int64)
 	ELANG_AST_DECLARE_SINGLE(asm_float_value, long double)
 
@@ -52,6 +65,7 @@ namespace elang::grammar{
 		ELANG_AST_NAME(asm_uninitialized_value),
 		ELANG_AST_NAME(asm_integral_value),
 		ELANG_AST_NAME(asm_float_value),
+		ELANG_AST_NAME(asm_offset),
 		ELANG_AST_NAME(asm_offset_explicit),
 		ELANG_AST_NAME(asm_string),
 		ELANG_AST_NAME(elang_identifier),
@@ -114,10 +128,15 @@ namespace elang::grammar{
 		dq,
 		df,
 		dz,
+		equ,
 	};
 
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_instruction, asm_instruction_id, std::vector<ELANG_AST_NAME(asm_operand)>)
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_times_instruction, unsigned int, ELANG_AST_NAME(asm_instruction))
+
+	using asm_named_decl_variant = boost::variant<ELANG_AST_NAME(asm_instruction), ELANG_AST_NAME(asm_times_instruction)>;
+	ELANG_AST_DECLARE_PAIR(asm_named_decl, ELANG_AST_NAME(elang_identifier), asm_named_decl_variant)
+	ELANG_AST_DECLARE_PAIR(asm_equ_instruction, ELANG_AST_NAME(elang_identifier), ELANG_AST_NAME(asm_offset))
 
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_stack, unsigned __int64)
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_global, ELANG_AST_NAME(elang_identifier))
@@ -131,6 +150,8 @@ namespace elang::grammar{
 		ELANG_AST_NAME(asm_label),
 		ELANG_AST_NAME(asm_instruction),
 		ELANG_AST_NAME(asm_times_instruction),
+		ELANG_AST_NAME(asm_named_decl),
+		ELANG_AST_NAME(asm_equ_instruction),
 		ELANG_AST_NAME(asm_stack),
 		ELANG_AST_NAME(asm_global),
 		ELANG_AST_NAME(asm_dzero),
@@ -162,6 +183,16 @@ namespace elang::grammar{
 
 		void operator ()(ELANG_AST_NAME(asm_stack) &ast) const{
 			table_.set_stack_size(ast.value);
+		}
+
+		void operator ()(ELANG_AST_NAME(asm_equ_instruction) &ast) const{
+			std::vector<std::shared_ptr<elang::easm::instruction_operand_object>> operands({ operator()(ast.second) });
+			table_.add(ast.first.value, std::make_shared<elang::easm::equ_instruction>(std::move(operands)));
+		}
+
+		void operator ()(ELANG_AST_NAME(asm_named_decl) &ast) const{
+			operator ()(ast.first);
+			boost::apply_visitor(*this, ast.second);
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_times_instruction) &ast) const{
@@ -373,6 +404,9 @@ ELANG_AST_ADAPT_SINGLE(asm_operand);
 
 ELANG_AST_ADAPT_PAIR(asm_instruction)
 ELANG_AST_ADAPT_PAIR(asm_times_instruction)
+
+ELANG_AST_ADAPT_PAIR(asm_named_decl)
+ELANG_AST_ADAPT_PAIR(asm_equ_instruction)
 
 ELANG_AST_ADAPT_SINGLE(asm_stack)
 ELANG_AST_ADAPT_SINGLE(asm_global)

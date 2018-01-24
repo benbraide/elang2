@@ -9,7 +9,7 @@
 #include "../memory/memory_register_table.h"
 
 #include "asm_section_id.h"
-#include "asm_instruction_object.h"
+#include "asm_equ_instruction.h"
 
 #include "asm_position_instruction_operand.h"
 
@@ -28,12 +28,13 @@ namespace elang::easm{
 		struct label_info{
 			unsigned __int64 offset;
 			unsigned __int64 *offset_ptr;
+			std::shared_ptr<equ_instruction> equ;
 		};
 
 		typedef std::unordered_map<std::string, label_info> label_map_type;
 
 		struct section_info{
-			unsigned __int64 offset;
+			unsigned __int64 size;
 			iptr_list_type instructions;
 			std::list<label_info *> labels;
 		};
@@ -43,6 +44,8 @@ namespace elang::easm{
 		void add(section_id section);
 
 		void add(const std::string &label);
+
+		void add(const std::string &label, std::shared_ptr<equ_instruction> equ);
 
 		void add(iptr_type instruction);
 
@@ -73,6 +76,7 @@ namespace elang::easm{
 		memory::register_table reg_tbl_;
 		std::size_t stack_size_ = 0;
 		std::string start_label_;
+		memory::table::range_type write_protect_{};
 	};
 }
 

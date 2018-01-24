@@ -28,6 +28,8 @@ namespace elang::byte_code{
 		static void loop(memory::table &mem_tbl, memory::register_table &reg_tbl){
 			auto reg = reg_tbl.find("rcx");
 			auto value = operand_info::extract_source<target_type>(mem_tbl, reg_tbl);
+			if (debug::debugger != nullptr)
+				debug::debugger->log("[rcx = " + std::to_string(reg->read<unsigned __int64>()) + "]");
 
 			if (reg->read<unsigned __int64>() != 0u){
 				reg->write(reg->read<unsigned __int64>() - 1u);
