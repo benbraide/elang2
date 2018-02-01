@@ -50,6 +50,39 @@ bool elang::lang::function_type_info::is_function() const{
 	return true;
 }
 
+std::string elang::lang::function_type_info::mangle_parameters() const{
+	if (parameter_types_.empty())
+		return "v";
+
+	std::string parameters;
+	for (auto parameter_type : parameter_types_)
+		parameters += parameter_type->mangle();
+
+	return parameters;
+}
+
+int elang::lang::function_type_info::call_score(const std::vector<ptr_type> &parameter_types) const{
+	if (parameter_types.size() > parameter_types_.size())
+		return ELANG_TYPE_INFO_MIN_SCORE;//Too many parameters
+
+	auto total_score = 0, score = 0;
+	auto parameter_type_iter = parameter_types_.begin();
+	for (auto parameter_type : parameter_types){
+		if ((score = parameter_type->score(**parameter_type_iter)) == ELANG_TYPE_INFO_MIN_SCORE)
+			return ELANG_TYPE_INFO_MIN_SCORE;//Mismatch
+
+		total_score += score;
+		++parameter_type_iter;
+	}
+
+	for (; parameter_type_iter != parameter_types_.end(); ++parameter_type_iter){
+		if (!ELANG_IS((*parameter_type_iter)->attributes(), attribute_type::optional))
+			return ELANG_TYPE_INFO_MIN_SCORE;//Too few parameters
+	}
+
+	return total_score;
+}
+
 elang::lang::type_info::ptr_type elang::lang::function_type_info::return_type() const{
 	return return_type_;
 }

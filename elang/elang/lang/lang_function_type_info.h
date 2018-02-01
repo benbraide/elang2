@@ -26,6 +26,10 @@ namespace elang::lang{
 
 		virtual bool is_function() const override;
 
+		virtual std::string mangle_parameters() const;
+
+		virtual int call_score(const std::vector<ptr_type> &parameter_types) const;
+
 		virtual ptr_type return_type() const;
 
 		virtual const ptr_list_type &parameter_types() const;

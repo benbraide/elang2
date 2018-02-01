@@ -22,6 +22,7 @@ namespace elang::lang{
 			const_			= (1 << 0x0000),
 			ref_			= (1 << 0x0001),
 			vref			= (1 << 0x0002),
+			optional		= (1 << 0x0003),
 		};
 
 		explicit type_info(attribute_type attributes);

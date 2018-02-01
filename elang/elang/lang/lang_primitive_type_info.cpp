@@ -158,10 +158,13 @@ int elang::lang::primitive_type_info::conversion_offset_(const primitive_type_in
 	if (!is_numeric())//Only numeric types can be converted
 		return ELANG_TYPE_INFO_MAX_SCORE;
 
-	if (id_ != type.id_)//Convertible
-		return (1 + ((type.id_ < id_) ? 0 : (static_cast<int>(type.id_) - static_cast<int>(id_))));
+	if (id_ < type.id_)
+		return 4;
 
-	return 0;
+	if (id_ != id_type::float_ && type.id_ != id_type::float_)
+		return 2;//Integer <--> Integer
+
+	return 3;//Integer <--> Float
 }
 
 elang::lang::unsigned_integral_type_info::unsigned_integral_type_info(id_type id, attribute_type attributes)
