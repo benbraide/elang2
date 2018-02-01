@@ -39,7 +39,7 @@ int elang::lang::function_type_info::score(const type_info &type) const{
 
 	auto lparam = parameter_types_.begin(), rparam = function_type->parameter_types_.begin();
 	for (; lparam != parameter_types_.end(); ++lparam, ++rparam){
-		if ((!(*rparam)->is_auto() || (*lparam)->is_variadic()) && (*lparam)->score(**rparam) != ELANG_TYPE_INFO_MAX_SCORE)
+		if (!(*rparam)->is_auto() && (*lparam)->score(**rparam) != ELANG_TYPE_INFO_MAX_SCORE)
 			return ELANG_TYPE_INFO_MIN_SCORE;//Parameter types must match
 	}
 

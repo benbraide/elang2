@@ -13,6 +13,12 @@ const std::string &elang::lang::symbol_table::name() const{
 	return name_;
 }
 
+std::string elang::lang::symbol_table::mangle() const{
+	if (parent_ == nullptr)
+		return ("N" + std::to_string(name_.size()) + name_);
+	return (parent_->mangle() + "N" + std::to_string(name_.size()) + name_);
+}
+
 elang::lang::symbol_table::entry_attribute_type elang::lang::symbol_table::attributes() const{
 	return attributes_;
 }
@@ -27,6 +33,10 @@ void elang::lang::symbol_table::add(std::shared_ptr<symbol_table> table){
 	}
 	else//New entry
 		map_[table->name_] = entry_info{ table };
+
+	auto type = dynamic_cast<type_info *>(table.get());
+	if (type != nullptr)
+		type_list_.push_back(type);
 }
 
 void elang::lang::symbol_table::add(const variable_entry_info &variable){
@@ -35,12 +45,15 @@ void elang::lang::symbol_table::add(const variable_entry_info &variable){
 		if (!entry->second.non_table.holds_value){
 			entry->second.non_table.holds_value = true;
 			entry->second.non_table.value = variable;
+			order_list_.push_back(&std::get<variable_entry_info>(entry->second.non_table.value));
 		}
 		else//Error
 			throw common::error::lang_symbol_exists;
 	}
-	else//New entry
+	else{//New entry
 		map_[variable.name] = entry_info{ nullptr, non_table_entry_info{ true, variable } };
+		order_list_.push_back(&std::get<variable_entry_info>(map_[variable.name].non_table.value));
+	}
 }
 
 void elang::lang::symbol_table::add(const function_entry_info &function){
@@ -71,7 +84,7 @@ void elang::lang::symbol_table::add_namespace(const std::string &name, entry_att
 }
 
 void elang::lang::symbol_table::add_variable(const std::string &name, type_info::ptr_type type, entry_attribute_type attributes){
-	add(variable_entry_info{ attributes, type, name });
+	add(variable_entry_info{ this, attributes, type, name });
 }
 
 void elang::lang::symbol_table::add_function(const std::string &name, type_info::ptr_type return_type,
@@ -132,12 +145,12 @@ elang::lang::symbol_table::function_list_entry_info *elang::lang::symbol_table::
 	return &std::get<function_list_entry_info>(*non_table);
 }
 
-void elang::lang::symbol_table::add_function_(function_list_entry_info &list, const function_entry_info &info){
-	auto key = dynamic_cast<function_type_info *>(info.type.get())->mangle_parameters();
-	if (list.list.find(key) == list.list.end())
-		list.list[key] = info;
-	else//Error
-		throw common::error::lang_symbol_exists;
+unsigned __int64 elang::lang::symbol_table::compute_offset(const symbol_table &table) const{
+	return 0;
+}
+
+unsigned __int64 elang::lang::symbol_table::compute_offset(const variable_entry_info &var) const{
+	return 0;
 }
 
 elang::lang::symbol_table::function_entry_info *elang::lang::symbol_table::match_function(const std::vector<function_entry_info> &list,
@@ -163,4 +176,12 @@ elang::lang::symbol_table::function_entry_info *elang::lang::symbol_table::match
 		throw common::error::lang_ambiguous_call;
 
 	return matched;
+}
+
+void elang::lang::symbol_table::add_function_(function_list_entry_info &list, const function_entry_info &info){
+	auto key = dynamic_cast<function_type_info *>(info.type.get())->mangle_parameters();
+	if (list.list.find(key) == list.list.end())
+		list.list[key] = info;
+	else//Error
+		throw common::error::lang_symbol_exists;
 }

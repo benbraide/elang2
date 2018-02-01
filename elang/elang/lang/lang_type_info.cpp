@@ -92,6 +92,6 @@ bool elang::lang::type_info::is_null_pointer() const{
 	return false;
 }
 
-bool elang::lang::type_info::is_variadic() const{
+bool elang::lang::type_info::is_user() const{
 	return false;
 }

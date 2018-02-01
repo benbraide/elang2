@@ -75,7 +75,7 @@ namespace elang::lang{
 
 		virtual bool is_null_pointer() const;
 
-		virtual bool is_variadic() const;
+		virtual bool is_user() const;
 
 	protected:
 		attribute_type attributes_;

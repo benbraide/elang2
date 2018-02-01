@@ -8,6 +8,9 @@ elang::lang::type_info::ptr_type elang::lang::primitive_type_info::clone(attribu
 }
 
 std::size_t elang::lang::primitive_type_info::size() const{
+	if (is_ref())
+		return sizeof(void *);
+
 	switch (id_){
 	case id_type::bool_:
 		return sizeof(bool_type);
@@ -26,7 +29,7 @@ std::size_t elang::lang::primitive_type_info::size() const{
 	case id_type::float_:
 		return sizeof(long double);
 	case id_type::nullptr_:
-		return sizeof(void *);
+		return sizeof(nullptr);
 	default:
 		break;
 	}

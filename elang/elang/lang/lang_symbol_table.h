@@ -24,6 +24,7 @@ namespace elang::lang{
 		};
 
 		struct variable_entry_info{
+			symbol_table *parent;
 			entry_attribute_type attributes;
 			type_info::ptr_type type;
 			std::string name;
@@ -50,6 +51,8 @@ namespace elang::lang{
 		};
 
 		typedef std::unordered_map<std::string, entry_info> map_type;
+		typedef std::list<variable_entry_info *> variable_list_type;
+		typedef std::list<type_info *> type_list_type;
 
 		symbol_table(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
 
@@ -58,6 +61,8 @@ namespace elang::lang{
 		virtual symbol_table *parent() const;
 
 		virtual const std::string &name() const;
+
+		virtual std::string mangle() const;
 
 		virtual entry_attribute_type attributes() const;
 
@@ -86,6 +91,10 @@ namespace elang::lang{
 
 		virtual function_list_entry_info *find_function(const std::string &name) const;
 
+		virtual unsigned __int64 compute_offset(const symbol_table &table) const;
+
+		virtual unsigned __int64 compute_offset(const variable_entry_info &var) const;
+
 		static function_entry_info *match_function(const std::vector<function_entry_info> &list,
 			const std::vector<type_info::ptr_type> &parameter_types);
 
@@ -96,6 +105,8 @@ namespace elang::lang{
 		symbol_table *parent_;
 		entry_attribute_type attributes_;
 		map_type map_;
+		variable_list_type order_list_;
+		type_list_type type_list_;
 	};
 
 	ELANG_MAKE_OPERATORS(symbol_table::entry_attribute_type)
