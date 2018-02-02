@@ -261,20 +261,23 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_DECLARE_RULE(asm_string)
 	ELANG_GRAMMAR_RULE_DEF(asm_string) = ("'" > x3::lexeme[*((x3::char_('\\') >> "'") | ~x3::char_("'"))] > "'");
 
+	ELANG_GRAMMAR_DECLARE_RULE(asm_identifier)
+	ELANG_GRAMMAR_RULE_DEF(asm_identifier) = x3::lexeme[-x3::char_('.') >> ELANG_GRAMMAR_RULE_NAME(elang_identifier)];
+
 	ELANG_GRAMMAR_DECLARE_RULE(asm_section)
 	ELANG_GRAMMAR_RULE_DEF(asm_section) = x3::no_case[(utils::keyword("section") > asm_section_symbols_ > (x3::eol | x3::eoi))];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_label)
-	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(elang_identifier) > ":" > (x3::eol | x3::eoi)];
+	ELANG_GRAMMAR_RULE_DEF(asm_label) = x3::lexeme[ELANG_GRAMMAR_RULE_NAME(asm_identifier) > ":" > (x3::eol | x3::eoi)];
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset_item)
 	ELANG_GRAMMAR_RULE_DEF(asm_offset_item) = (
-		asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(elang_identifier))
+		asm_offset_op_symbols_ > (ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(asm_identifier))
 	);
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_offset)
 	ELANG_GRAMMAR_RULE_DEF(asm_offset) = (
-		(ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(elang_identifier))
+		(ELANG_GRAMMAR_RULE_NAME(asm_integral_expression) | ELANG_GRAMMAR_RULE_NAME(asm_identifier))
 		>> *ELANG_GRAMMAR_RULE_NAME(asm_offset_item)
 	);
 
@@ -290,7 +293,7 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_string) |
 		ELANG_GRAMMAR_RULE_NAME(asm_memory) |
 		ELANG_GRAMMAR_RULE_NAME(asm_offset_explicit) |
-		ELANG_GRAMMAR_RULE_NAME(elang_identifier) |
+		ELANG_GRAMMAR_RULE_NAME(asm_identifier) |
 		ELANG_GRAMMAR_RULE_NAME(asm_float_value) |
 		ELANG_GRAMMAR_RULE_NAME(asm_integral_value)
 	);
@@ -312,7 +315,7 @@ namespace elang::grammar{
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_equ_instruction)
 	ELANG_GRAMMAR_RULE_DEF(asm_equ_instruction) = (
-		ELANG_GRAMMAR_RULE_NAME(elang_identifier) >> x3::no_case[utils::keyword("equ")] >
+		ELANG_GRAMMAR_RULE_NAME(asm_identifier) >> x3::no_case[utils::keyword("equ")] >
 		ELANG_GRAMMAR_RULE_NAME(asm_offset) > (x3::eol | x3::eoi)
 	);
 
@@ -330,7 +333,7 @@ namespace elang::grammar{
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_named_decl)
 	ELANG_GRAMMAR_RULE_DEF(asm_named_decl) = (
-		ELANG_GRAMMAR_RULE_NAME(elang_identifier) >>
+		ELANG_GRAMMAR_RULE_NAME(asm_identifier) >>
 		(ELANG_GRAMMAR_RULE_NAME(asm_decl_times_instruction) | ELANG_GRAMMAR_RULE_NAME(asm_int_decl_instruction) |
 			ELANG_GRAMMAR_RULE_NAME(asm_flt_decl_instruction))
 	);
@@ -339,7 +342,7 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_stack) = (x3::no_case[utils::keyword(".stack")] > x3::uint64 > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_global)
-	ELANG_GRAMMAR_RULE_DEF(asm_global) = (x3::no_case[utils::keyword(".global")] > ELANG_GRAMMAR_RULE_NAME(elang_identifier) > (x3::eol | x3::eoi));
+	ELANG_GRAMMAR_RULE_DEF(asm_global) = (x3::no_case[utils::keyword(".global")] > ELANG_GRAMMAR_RULE_NAME(asm_identifier) > (x3::eol | x3::eoi));
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_dzero)
 	ELANG_GRAMMAR_RULE_DEF(asm_dzero) = (x3::no_case[utils::keyword(".zero")] > x3::uint64 > (x3::eol | x3::eoi));
@@ -378,6 +381,7 @@ namespace elang::grammar{
 		ELANG_GRAMMAR_RULE_NAME(asm_float_group),
 		ELANG_GRAMMAR_RULE_NAME(asm_float_expression),
 		ELANG_GRAMMAR_RULE_NAME(asm_string),
+		ELANG_GRAMMAR_RULE_NAME(asm_identifier),
 		ELANG_GRAMMAR_RULE_NAME(asm_section),
 		ELANG_GRAMMAR_RULE_NAME(asm_label),
 		ELANG_GRAMMAR_RULE_NAME(asm_offset_item),

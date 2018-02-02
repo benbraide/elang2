@@ -49,11 +49,12 @@ namespace elang::grammar{
 	ELANG_AST_DECLARE_SINGLE(asm_float_value, long double)
 
 	ELANG_AST_DECLARE_SINGLE(asm_string, std::string)
+	ELANG_AST_DECLARE_PAIR(asm_identifier, boost::optional<char>, ELANG_AST_NAME(elang_identifier))
 
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_section, elang::easm::section_id)
-	ELANG_AST_DECLARE_SINGLE_WPOS(asm_label, ELANG_AST_NAME(elang_identifier))
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_label, ELANG_AST_NAME(asm_identifier))
 
-	using asm_offset_item_variant = boost::variant<ELANG_AST_NAME(asm_integral_value), ELANG_AST_NAME(elang_identifier)>;
+	using asm_offset_item_variant = boost::variant<ELANG_AST_NAME(asm_integral_value), ELANG_AST_NAME(asm_identifier)>;
 
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_offset_item, byte_code::operand_info::offset_op_type, asm_offset_item_variant)
 	ELANG_AST_DECLARE_PAIR(asm_offset, asm_offset_item_variant, std::vector<ELANG_AST_NAME(asm_offset_item)>)
@@ -68,7 +69,7 @@ namespace elang::grammar{
 		ELANG_AST_NAME(asm_offset),
 		ELANG_AST_NAME(asm_offset_explicit),
 		ELANG_AST_NAME(asm_string),
-		ELANG_AST_NAME(elang_identifier),
+		ELANG_AST_NAME(asm_identifier),
 		ELANG_AST_NAME(asm_memory)
 	)
 
@@ -135,11 +136,11 @@ namespace elang::grammar{
 	ELANG_AST_DECLARE_PAIR_WPOS(asm_times_instruction, unsigned int, ELANG_AST_NAME(asm_instruction))
 
 	using asm_named_decl_variant = boost::variant<ELANG_AST_NAME(asm_instruction), ELANG_AST_NAME(asm_times_instruction)>;
-	ELANG_AST_DECLARE_PAIR(asm_named_decl, ELANG_AST_NAME(elang_identifier), asm_named_decl_variant)
-	ELANG_AST_DECLARE_PAIR(asm_equ_instruction, ELANG_AST_NAME(elang_identifier), ELANG_AST_NAME(asm_offset))
+	ELANG_AST_DECLARE_PAIR(asm_named_decl, ELANG_AST_NAME(asm_identifier), asm_named_decl_variant)
+	ELANG_AST_DECLARE_PAIR(asm_equ_instruction, ELANG_AST_NAME(asm_identifier), ELANG_AST_NAME(asm_offset))
 
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_stack, unsigned __int64)
-	ELANG_AST_DECLARE_SINGLE_WPOS(asm_global, ELANG_AST_NAME(elang_identifier))
+	ELANG_AST_DECLARE_SINGLE_WPOS(asm_global, ELANG_AST_NAME(asm_identifier))
 
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_dzero, unsigned __int64)
 	ELANG_AST_DECLARE_SINGLE_WPOS(asm_dstring, ELANG_AST_NAME(asm_string))
@@ -178,7 +179,10 @@ namespace elang::grammar{
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_global) &ast) const{
-			table_.set_start_label(ast.value.value);
+			if (ast.value.first.is_initialized())
+				table_.set_start_label("." + ast.value.second.value);
+			else//Uninitialized
+				table_.set_start_label(ast.value.second.value);
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_stack) &ast) const{
@@ -187,7 +191,10 @@ namespace elang::grammar{
 
 		void operator ()(ELANG_AST_NAME(asm_equ_instruction) &ast) const{
 			std::vector<std::shared_ptr<elang::easm::instruction_operand_object>> operands({ operator()(ast.second) });
-			table_.add(ast.first.value, std::make_shared<elang::easm::equ_instruction>(std::move(operands)));
+			if (ast.first.first.is_initialized())
+				table_.add(("." + ast.first.second.value), std::make_shared<elang::easm::equ_instruction>(std::move(operands)));
+			else//Uninitialized
+				table_.add(ast.first.second.value, std::make_shared<elang::easm::equ_instruction>(std::move(operands)));
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_named_decl) &ast) const{
@@ -205,7 +212,10 @@ namespace elang::grammar{
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_label) &ast) const{
-			table_.add(ast.value.value);
+			if (ast.value.first.is_initialized())
+				table_.add("." + ast.value.second.value);
+			else//Uninitialized
+				table_.add(ast.value.second.value);
 		}
 
 		void operator ()(ELANG_AST_NAME(asm_section) &ast) const{
@@ -235,6 +245,12 @@ namespace elang::grammar{
 			}
 			
 			return std::make_shared<elang::easm::label_instruction_operand>(table_.find_label(ast.value));
+		}
+
+		std::shared_ptr<elang::easm::instruction_operand_object> operator ()(ELANG_AST_NAME(asm_identifier) &ast) const{
+			if (!ast.first.is_initialized())
+				return operator()(ast.second);
+			return std::make_shared<elang::easm::label_instruction_operand>(table_.find_label("." + ast.second.value));
 		}
 
 		std::shared_ptr<elang::easm::instruction_operand_object> operator ()(ELANG_AST_NAME(asm_string) &ast) const{
@@ -391,6 +407,7 @@ ELANG_AST_ADAPT_SINGLE(asm_integral_value)
 ELANG_AST_ADAPT_SINGLE(asm_float_value)
 
 ELANG_AST_ADAPT_SINGLE(asm_string)
+ELANG_AST_ADAPT_PAIR(asm_identifier)
 
 ELANG_AST_ADAPT_SINGLE(asm_section)
 ELANG_AST_ADAPT_SINGLE(asm_label)

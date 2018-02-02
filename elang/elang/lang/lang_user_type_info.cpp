@@ -213,7 +213,7 @@ elang::lang::symbol_table *elang::lang::extended_user_type_info::find_table(cons
 }
 
 unsigned __int64 elang::lang::extended_user_type_info::compute_offset(const symbol_table &table) const{
-	auto type = dynamic_cast<const type_info *>(&table);
+	auto type = dynamic_cast<const user_type_info *>(&table);
 	if (type == nullptr)
 		return 0u;//Target is not a type
 
