@@ -52,7 +52,6 @@ namespace elang::lang{
 
 		typedef std::unordered_map<std::string, entry_info> map_type;
 		typedef std::list<variable_entry_info *> variable_list_type;
-		typedef std::list<type_info *> type_list_type;
 
 		symbol_table(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
 
@@ -106,7 +105,6 @@ namespace elang::lang{
 		entry_attribute_type attributes_;
 		map_type map_;
 		variable_list_type order_list_;
-		type_list_type type_list_;
 	};
 
 	ELANG_MAKE_OPERATORS(symbol_table::entry_attribute_type)

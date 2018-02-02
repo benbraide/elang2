@@ -53,32 +53,9 @@ bool elang::lang::user_type_info::is_user() const{
 	return true;
 }
 
-void elang::lang::user_type_info::add(std::shared_ptr<symbol_table> table){
-	symbol_table::add(table);
-	auto type = dynamic_cast<type_info *>(table.get());
-	if (type != nullptr)
-		size_ += type->size();
-}
-
 void elang::lang::user_type_info::add(const variable_entry_info &variable){
 	symbol_table::add(variable);
 	size_ += variable.type->size();
-}
-
-unsigned __int64 elang::lang::user_type_info::compute_offset(const symbol_table &table) const{
-	auto type = dynamic_cast<const type_info *>(&table);
-	if (type == nullptr)
-		return 0u;//Target is not a type
-
-	auto offset = ((parent_ == nullptr) ? 0ui64 : parent_->compute_offset(*this));
-	for (auto base_type : type_list_){
-		if (base_type != type)
-			offset += base_type->size();
-		else//Matched
-			return offset;
-	}
-
-	return 0u;//No match
 }
 
 unsigned __int64 elang::lang::user_type_info::compute_offset(const variable_entry_info &var) const{
@@ -221,4 +198,40 @@ void elang::lang::enum_user_type_info::add(const variable_entry_info &variable){
 unsigned __int64 elang::lang::enum_user_type_info::compute_offset(const variable_entry_info &var) const{
 	auto entry = std::find(order_list_.begin(), order_list_.end(), &var);
 	return static_cast<unsigned __int64>(std::distance(order_list_.begin(), entry));
+}
+
+elang::lang::extended_user_type_info::extended_user_type_info(const std::string &name, symbol_table *parent, entry_attribute_type attributes)
+	: user_type_info(name, parent, attributes){}
+
+elang::lang::symbol_table *elang::lang::extended_user_type_info::find_table(const std::string &name) const{
+	auto table = user_type_info::find_table(name);
+	if (table != nullptr)
+		return table;//Found inside this
+
+	auto entry = type_map_.find(name);
+	return ((entry == type_map_.end()) ? nullptr : entry->second);
+}
+
+unsigned __int64 elang::lang::extended_user_type_info::compute_offset(const symbol_table &table) const{
+	auto type = dynamic_cast<const type_info *>(&table);
+	if (type == nullptr)
+		return 0u;//Target is not a type
+
+	auto offset = ((parent_ == nullptr) ? 0ui64 : parent_->compute_offset(*this));
+	for (auto base_type : type_order_list_){
+		if (base_type != type)
+			offset += base_type->size();
+		else//Matched
+			return offset;
+	}
+
+	return 0u;//No match
+}
+
+void elang::lang::extended_user_type_info::add_base(user_type_info &value){
+	if (type_map_.find(value.name()) != type_map_.end())
+		throw common::error::lang_base_type_exists;
+
+	type_map_[value.name()] = &value;
+	size_ += value.size();
 }

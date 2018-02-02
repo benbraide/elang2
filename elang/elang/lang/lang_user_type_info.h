@@ -22,11 +22,7 @@ namespace elang::lang{
 
 		virtual bool is_user() const override;
 
-		virtual void add(std::shared_ptr<symbol_table> table) override;
-
 		virtual void add(const variable_entry_info &variable) override;
-
-		virtual unsigned __int64 compute_offset(const symbol_table &table) const override;
 
 		virtual unsigned __int64 compute_offset(const variable_entry_info &var) const override;
 
@@ -104,6 +100,24 @@ namespace elang::lang{
 		virtual void add(const variable_entry_info &variable) override;
 
 		virtual unsigned __int64 compute_offset(const variable_entry_info &var) const override;
+	};
+
+	class extended_user_type_info : public user_type_info{
+	public:
+		typedef std::unordered_map<std::string, user_type_info *> type_map_type;
+		typedef std::list<user_type_info *> type_list_type;
+
+		extended_user_type_info(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
+
+		virtual symbol_table *find_table(const std::string &name) const override;
+
+		virtual unsigned __int64 compute_offset(const symbol_table &table) const override;
+
+		virtual void add_base(user_type_info &value);
+
+	protected:
+		type_map_type type_map_;
+		type_list_type type_order_list_;
 	};
 }
 

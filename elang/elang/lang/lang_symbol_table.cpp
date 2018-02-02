@@ -33,10 +33,6 @@ void elang::lang::symbol_table::add(std::shared_ptr<symbol_table> table){
 	}
 	else//New entry
 		map_[table->name_] = entry_info{ table };
-
-	auto type = dynamic_cast<type_info *>(table.get());
-	if (type != nullptr)
-		type_list_.push_back(type);
 }
 
 void elang::lang::symbol_table::add(const variable_entry_info &variable){
@@ -121,8 +117,7 @@ elang::lang::symbol_table::non_table_type *elang::lang::symbol_table::find_non_t
 }
 
 elang::lang::type_info *elang::lang::symbol_table::find_type(const std::string &name) const{
-	auto entry = map_.find(name);
-	return ((entry == map_.end()) ? nullptr : dynamic_cast<type_info *>(entry->second.table.get()));
+	return dynamic_cast<type_info *>(find_table(name));
 }
 
 elang::lang::symbol_table::variable_entry_info *elang::lang::symbol_table::find_variable(const std::string &name) const{

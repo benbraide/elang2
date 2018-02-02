@@ -38,7 +38,9 @@ namespace elang::common{
 		asm_parse_error,
 		asm_no_start_address,
 		lang_bad_type,
+		lang_bad_base_type,
 		lang_symbol_exists,
+		lang_base_type_exists,
 		lang_unmatched_call,
 		lang_ambiguous_call,
 	};
