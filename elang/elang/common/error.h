@@ -37,6 +37,8 @@ namespace elang::common{
 		asm_no_active_section,
 		asm_parse_error,
 		asm_no_start_address,
+		lang_out_of_registers,
+		lang_bad_operand,
 		lang_bad_type,
 		lang_bad_base_type,
 		lang_symbol_exists,

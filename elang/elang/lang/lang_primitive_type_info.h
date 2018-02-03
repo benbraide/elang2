@@ -28,7 +28,7 @@ namespace elang::lang{
 			indeterminate,
 		};
 
-		primitive_type_info(id_type id, attribute_type attributes);
+		primitive_type_info(id_type id, attribute_type attributes = attribute_type::nil);
 
 		virtual ptr_type clone(attribute_type attributes) const override;
 
@@ -62,7 +62,7 @@ namespace elang::lang{
 
 	class unsigned_integral_type_info : public primitive_type_info{
 	public:
-		unsigned_integral_type_info(id_type id, attribute_type attributes);
+		unsigned_integral_type_info(id_type id, attribute_type attributes = attribute_type::nil);
 
 		virtual ptr_type clone(attribute_type attributes) const override;
 
