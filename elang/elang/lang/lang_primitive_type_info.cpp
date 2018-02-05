@@ -157,6 +157,10 @@ bool elang::lang::primitive_type_info::is_null_pointer() const{
 	return (id_ == id_type::nullptr_);
 }
 
+elang::lang::primitive_type_info::id_type elang::lang::primitive_type_info::id() const{
+	return id_;
+}
+
 int elang::lang::primitive_type_info::conversion_offset_(const primitive_type_info &type) const{
 	if (!is_numeric())//Only numeric types can be converted
 		return ELANG_TYPE_INFO_MAX_SCORE;

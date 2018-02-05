@@ -37,7 +37,11 @@ namespace elang::lang{
 		bool is_primitive_constant;
 	};
 
-	struct get_int_operand_value{
+	template <class target_type>
+	struct get_operand_value;
+
+	template <>
+	struct get_operand_value<__int64>{
 		__int64 operator ()(common::constant_value value) const{
 			switch (value){
 			case elang::common::constant_value::false_:
@@ -70,7 +74,8 @@ namespace elang::lang{
 		}
 	};
 
-	struct get_float_operand_value{
+	template <>
+	struct get_operand_value<long double>{
 		long double operator ()(__int64 value) const{
 			return static_cast<long double>(value);
 		}

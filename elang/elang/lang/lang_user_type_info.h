@@ -8,6 +8,8 @@
 namespace elang::lang{
 	class user_type_info : public type_info, public symbol_table{
 	public:
+		using symbol_table::compute_relative_offset;
+
 		user_type_info(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
 
 		virtual ptr_type clone(attribute_type attributes) const override;
@@ -24,7 +26,9 @@ namespace elang::lang{
 
 		virtual void add(const variable_entry_info &variable) override;
 
-		virtual unsigned __int64 compute_offset(const variable_entry_info &var) const override;
+		virtual unsigned __int64 compute_relative_offset(const variable_entry_info &var) const override;
+
+		virtual bool is_base(const user_type_info &value) const;
 
 	protected:
 		std::size_t size_ = 0;
@@ -109,9 +113,17 @@ namespace elang::lang{
 
 		extended_user_type_info(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
 
+		virtual unsigned __int64 align_address(unsigned __int64 value, const type_info &type) const override;
+
+		virtual bool has_conversion_to(const type_info &type) const override;
+
 		virtual symbol_table *find_table(const std::string &name) const override;
 
-		virtual unsigned __int64 compute_offset(const symbol_table &table) const override;
+		virtual unsigned __int64 compute_relative_offset(const symbol_table &table) const override;
+
+		virtual unsigned __int64 compute_relative_offset(const variable_entry_info &var) const override;
+
+		virtual bool is_base(const user_type_info &value) const override;
 
 		virtual void add_base(user_type_info &value);
 

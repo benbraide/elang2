@@ -20,27 +20,23 @@ std::string elang::lang::user_type_info::mangle_name() const{
 }
 
 int elang::lang::user_type_info::score(const type_info &type) const{
-	auto base_type = &type;
+	auto base_type = dynamic_cast<const user_type_info *>(&type);
 	if (base_type == nullptr){//Type is not a user type
 		auto modified_user_type = dynamic_cast<const modified_user_type_info *>(&type);
-		if (modified_user_type == nullptr)
+		if (modified_user_type != nullptr)
+			base_type = dynamic_cast<const user_type_info *>(modified_user_type->value().get());
+		else//Not a modified user type
 			return (type.has_conversion_to(*this) ? (ELANG_TYPE_INFO_MAX_SCORE - 2) : ELANG_TYPE_INFO_MIN_SCORE);
-
-		base_type = modified_user_type->value().get();
 	}
 
-	if (base_type != this)//Mismatch
+	if (base_type != this){//Mismatch
+		if (base_type->is_base(*this))
+			return (type.is_vref() ? ELANG_TYPE_INFO_MIN_SCORE : (ELANG_TYPE_INFO_MAX_SCORE - 1));
 		return (type.has_conversion_to(*this) ? (ELANG_TYPE_INFO_MAX_SCORE - 2) : ELANG_TYPE_INFO_MIN_SCORE);
+	}
 
 	if (type.is_vref())//Types must match
-		return ((is_vref() && (is_const() || !type.is_const())) ? ELANG_TYPE_INFO_MAX_SCORE : ELANG_TYPE_INFO_MIN_SCORE);
-
-	if (is_ref()){//Type must be a ref
-		if (!is_const() && (!type.is_ref() || (type.is_ref() && type.is_const())))
-			return ELANG_TYPE_INFO_MIN_SCORE;//'const ref' to 'ref' OR 'rval' to 'ref'
-
-		return (type.is_ref() ? ELANG_TYPE_INFO_MAX_SCORE : (ELANG_TYPE_INFO_MAX_SCORE - 1));
-	}
+		return ELANG_TYPE_INFO_MIN_SCORE;
 
 	return ELANG_TYPE_INFO_MAX_SCORE;
 }
@@ -58,8 +54,8 @@ void elang::lang::user_type_info::add(const variable_entry_info &variable){
 	size_ += variable.type->size();
 }
 
-unsigned __int64 elang::lang::user_type_info::compute_offset(const variable_entry_info &var) const{
-	auto offset = ((parent_ == nullptr) ? 0ui64 : parent_->compute_offset(*this));
+unsigned __int64 elang::lang::user_type_info::compute_relative_offset(const variable_entry_info &var) const{
+	auto offset = 0ui64;
 	for (auto variable : order_list_){
 		if (variable != &var)
 			offset += variable->type->size();
@@ -67,7 +63,11 @@ unsigned __int64 elang::lang::user_type_info::compute_offset(const variable_entr
 			return offset;
 	}
 
-	return 0u;//No match
+	return static_cast<unsigned __int64>(-1);//No match
+}
+
+bool elang::lang::user_type_info::is_base(const user_type_info &value) const{
+	return false;
 }
 
 elang::lang::modified_user_type_info::modified_user_type_info(ptr_type value, attribute_type attributes)
@@ -96,7 +96,43 @@ std::string elang::lang::modified_user_type_info::mangle_attributes() const{
 }
 
 int elang::lang::modified_user_type_info::score(const type_info &type) const{
-	return value_->score(type);
+	auto base_type = dynamic_cast<const user_type_info *>(&type);
+	if (base_type == nullptr){//Type is not a user type
+		auto modified_user_type = dynamic_cast<const modified_user_type_info *>(&type);
+		if (modified_user_type != nullptr)
+			base_type = dynamic_cast<const user_type_info *>(modified_user_type->value().get());
+		else//Not a modified user type
+			return (type.has_conversion_to(*this) ? (ELANG_TYPE_INFO_MAX_SCORE - 2) : ELANG_TYPE_INFO_MIN_SCORE);
+	}
+
+	auto user_value = dynamic_cast<const user_type_info *>(value_.get());
+	if (base_type != user_value){//Mismatch
+		if (base_type->is_base(*user_value)){
+			if (type.is_vref())
+				return ELANG_TYPE_INFO_MIN_SCORE;
+
+			if (is_ref()){
+				if (!is_const() && !type.is_ref() || (type.is_ref() && type.is_const()))
+					return ELANG_TYPE_INFO_MIN_SCORE;//'const ref' to 'ref' OR 'rval' to 'ref'
+				return (type.is_ref() ? (ELANG_TYPE_INFO_MAX_SCORE - 1) : (ELANG_TYPE_INFO_MAX_SCORE - 2));
+			}
+
+			return (ELANG_TYPE_INFO_MAX_SCORE - 1);
+		}
+
+		return (type.has_conversion_to(*this) ? (ELANG_TYPE_INFO_MAX_SCORE - 2) : ELANG_TYPE_INFO_MIN_SCORE);
+	}
+
+	if (type.is_vref())//Types must match
+		return ((is_vref() && (is_const() || !type.is_const())) ? ELANG_TYPE_INFO_MAX_SCORE : ELANG_TYPE_INFO_MIN_SCORE);
+
+	if (is_ref()){//Type must be a ref
+		if (!is_const() && (!type.is_ref() || (type.is_ref() && type.is_const())))
+			return ELANG_TYPE_INFO_MIN_SCORE;//'const ref' to 'ref' OR 'rval' to 'ref'
+		return (type.is_ref() ? ELANG_TYPE_INFO_MAX_SCORE : (ELANG_TYPE_INFO_MAX_SCORE - 1));
+	}
+
+	return ELANG_TYPE_INFO_MAX_SCORE;
 }
 
 bool elang::lang::modified_user_type_info::has_conversion_to(const type_info &type) const{
@@ -203,6 +239,26 @@ unsigned __int64 elang::lang::enum_user_type_info::compute_offset(const variable
 elang::lang::extended_user_type_info::extended_user_type_info(const std::string &name, symbol_table *parent, entry_attribute_type attributes)
 	: user_type_info(name, parent, attributes){}
 
+unsigned __int64 elang::lang::extended_user_type_info::align_address(unsigned __int64 value, const type_info &type) const{
+	auto user_type = dynamic_cast<const user_type_info *>(&type);
+	if (user_type == nullptr || user_type == this)
+		return value;//Not a user type OR same type
+
+	auto offset = compute_relative_offset(*user_type);
+	if (offset != static_cast<unsigned __int64>(-1))
+		return (value + offset);//Type is a base of this
+
+	if ((offset = user_type->compute_relative_offset(*this)) != static_cast<unsigned __int64>(-1))
+		return (value + offset);//This is a base of type
+
+	return value;//Type is not related to this
+}
+
+bool elang::lang::extended_user_type_info::has_conversion_to(const type_info &type) const{
+	auto user_type = dynamic_cast<const user_type_info *>(&type);
+	return ((user_type != nullptr && is_base(*user_type)) || user_type_info::has_conversion_to(type));
+}
+
 elang::lang::symbol_table *elang::lang::extended_user_type_info::find_table(const std::string &name) const{
 	auto table = user_type_info::find_table(name);
 	if (table != nullptr)
@@ -212,12 +268,12 @@ elang::lang::symbol_table *elang::lang::extended_user_type_info::find_table(cons
 	return ((entry == type_map_.end()) ? nullptr : entry->second);
 }
 
-unsigned __int64 elang::lang::extended_user_type_info::compute_offset(const symbol_table &table) const{
+unsigned __int64 elang::lang::extended_user_type_info::compute_relative_offset(const symbol_table &table) const{
 	auto type = dynamic_cast<const user_type_info *>(&table);
-	if (type == nullptr)
-		return 0u;//Target is not a type
+	if (type == nullptr)//Target is not a user type
+		return static_cast<unsigned __int64>(-1);
 
-	auto offset = ((parent_ == nullptr) ? 0ui64 : parent_->compute_offset(*this));
+	auto offset = 0ui64;
 	for (auto base_type : type_order_list_){
 		if (base_type != type)
 			offset += base_type->size();
@@ -225,7 +281,32 @@ unsigned __int64 elang::lang::extended_user_type_info::compute_offset(const symb
 			return offset;
 	}
 
-	return 0u;//No match
+	return static_cast<unsigned __int64>(-1);//No match
+}
+
+unsigned __int64 elang::lang::extended_user_type_info::compute_relative_offset(const variable_entry_info &var) const{
+	auto offset = user_type_info::compute_relative_offset(var);
+	if (offset != static_cast<unsigned __int64>(-1))
+		return offset;
+
+	auto base_offset = 0ui64;
+	for (auto base_type : type_order_list_){
+		if ((offset = base_type->compute_relative_offset(var)) == static_cast<unsigned __int64>(-1))
+			base_offset += base_type->size();
+		else//Matched
+			return (base_offset + offset);
+	}
+
+	return static_cast<unsigned __int64>(-1);//No match
+}
+
+bool elang::lang::extended_user_type_info::is_base(const user_type_info &value) const{
+	for (auto base_type : type_order_list_){
+		if (base_type == &value || base_type->is_base(value))
+			return true;
+	}
+
+	return false;
 }
 
 void elang::lang::extended_user_type_info::add_base(user_type_info &value){

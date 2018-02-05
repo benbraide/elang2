@@ -28,6 +28,10 @@ std::string elang::lang::type_info::mangle_attributes() const{
 	return value;
 }
 
+unsigned __int64 elang::lang::type_info::align_address(unsigned __int64 value, const type_info &type) const{
+	return value;
+}
+
 bool elang::lang::type_info::has_conversion_to(const type_info &type) const{
 	return false;
 }

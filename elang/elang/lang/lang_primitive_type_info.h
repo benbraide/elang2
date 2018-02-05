@@ -54,6 +54,8 @@ namespace elang::lang{
 
 		virtual bool is_null_pointer() const override;
 
+		virtual id_type id() const;
+
 	protected:
 		virtual int conversion_offset_(const primitive_type_info &type) const;
 

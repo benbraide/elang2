@@ -45,6 +45,8 @@ namespace elang::common{
 		lang_base_type_exists,
 		lang_unmatched_call,
 		lang_ambiguous_call,
+		lang_division_by_zero,
+		lang_invalid_operation,
 	};
 }
 

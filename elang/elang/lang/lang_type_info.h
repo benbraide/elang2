@@ -41,6 +41,8 @@ namespace elang::lang{
 
 		virtual std::string mangle_attributes() const;
 
+		virtual unsigned __int64 align_address(unsigned __int64 value, const type_info &type) const;
+
 		virtual int score(const type_info &type) const = 0;
 
 		virtual bool has_conversion_to(const type_info &type) const;

@@ -94,6 +94,10 @@ namespace elang::lang{
 
 		virtual unsigned __int64 compute_offset(const variable_entry_info &var) const;
 
+		virtual unsigned __int64 compute_relative_offset(const symbol_table &table) const;
+
+		virtual unsigned __int64 compute_relative_offset(const variable_entry_info &var) const;
+
 		static function_entry_info *match_function(const std::vector<function_entry_info> &list,
 			const std::vector<type_info::ptr_type> &parameter_types);
 

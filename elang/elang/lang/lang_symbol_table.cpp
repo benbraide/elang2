@@ -141,11 +141,33 @@ elang::lang::symbol_table::function_list_entry_info *elang::lang::symbol_table::
 }
 
 unsigned __int64 elang::lang::symbol_table::compute_offset(const symbol_table &table) const{
-	return 0;
+	if (parent_ == nullptr)
+		return compute_relative_offset(table);
+
+	auto offset_in_parent = parent_->compute_offset(*this);
+	if (offset_in_parent == static_cast<unsigned __int64>(-1))
+		return compute_relative_offset(table);
+
+	return (offset_in_parent + compute_relative_offset(table));
 }
 
 unsigned __int64 elang::lang::symbol_table::compute_offset(const variable_entry_info &var) const{
-	return 0;
+	if (parent_ == nullptr)
+		return compute_relative_offset(var);
+
+	auto offset_in_parent = parent_->compute_offset(*this);
+	if (offset_in_parent == static_cast<unsigned __int64>(-1))
+		return compute_relative_offset(var);
+
+	return (offset_in_parent + compute_relative_offset(var));
+}
+
+unsigned __int64 elang::lang::symbol_table::compute_relative_offset(const symbol_table &table) const{
+	return static_cast<unsigned __int64>(-1);
+}
+
+unsigned __int64 elang::lang::symbol_table::compute_relative_offset(const variable_entry_info &var) const{
+	return static_cast<unsigned __int64>(-1);
 }
 
 elang::lang::symbol_table::function_entry_info *elang::lang::symbol_table::match_function(const std::vector<function_entry_info> &list,
