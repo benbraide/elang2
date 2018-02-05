@@ -13,9 +13,12 @@
 #define ELANG_TYPE_INFO_MAX_SCORE 20
 
 namespace elang::lang{
+	class type_symbol_table;
+
 	class type_info : public std::enable_shared_from_this<type_info>{
 	public:
 		typedef std::shared_ptr<type_info> ptr_type;
+		typedef std::shared_ptr<type_symbol_table> type_symbol_table_ptr_type;
 
 		enum class attribute_type : unsigned int{
 			nil				= (0 << 0x0000),
@@ -32,6 +35,8 @@ namespace elang::lang{
 		virtual ptr_type clone(attribute_type attributes) const = 0;
 
 		virtual attribute_type attributes() const;
+
+		virtual type_symbol_table_ptr_type symbol_table() const;
 
 		virtual std::size_t size() const = 0;
 

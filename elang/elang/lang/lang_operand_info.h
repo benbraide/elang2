@@ -4,7 +4,6 @@
 #define ELANG_LANG_OPERAND_INFO_H
 
 #include <variant>
-#include <optional>
 
 #include "../common/constant_value.h"
 
@@ -17,7 +16,7 @@
 
 namespace elang::lang{
 	struct memory_operand_value_info{
-		std::optional<std::string> label;
+		std::string label;
 		__int64 offset;
 	};
 

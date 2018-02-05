@@ -1,3 +1,4 @@
+#include "lang_type_symbol_table.h"
 #include "lang_pointer_type_info.h"
 
 elang::lang::pointer_type_info::pointer_type_info(ptr_type target, attribute_type attributes)
@@ -43,7 +44,20 @@ int elang::lang::pointer_type_info::score(const type_info &type) const{
 }
 
 bool elang::lang::pointer_type_info::has_conversion_to(const type_info &type) const{
-	return false;
+	auto pointer_type = dynamic_cast<const pointer_type_info *>(&type);
+	if (pointer_type == nullptr)
+		return false;
+
+	if (target_->is_pointer() || pointer_type->target_->is_pointer())
+		return (target_->score(*pointer_type->target_) != ELANG_TYPE_INFO_MIN_SCORE);
+
+	if (pointer_type->target_->is_void())
+		return true;//Pointers can be converted to void*
+
+	auto symbol_table = this->symbol_table();
+	auto other_symbol_table = pointer_type->target_->symbol_table();
+	
+	return (symbol_table != nullptr && other_symbol_table != nullptr && symbol_table->is_base(*other_symbol_table));
 }
 
 bool elang::lang::pointer_type_info::is_pointer() const{

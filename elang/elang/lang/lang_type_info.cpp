@@ -1,4 +1,4 @@
-#include "lang_type_info.h"
+#include "lang_type_symbol_table.h"
 
 elang::lang::type_info::type_info(attribute_type attributes)
 	: attributes_(attributes){}
@@ -9,6 +9,10 @@ elang::lang::type_info::ptr_type elang::lang::type_info::reflect(){
 
 elang::lang::type_info::attribute_type elang::lang::type_info::attributes() const{
 	return attributes_;
+}
+
+elang::lang::type_info::type_symbol_table_ptr_type elang::lang::type_info::symbol_table() const{
+	return nullptr;
 }
 
 std::string elang::lang::type_info::mangle() const{
