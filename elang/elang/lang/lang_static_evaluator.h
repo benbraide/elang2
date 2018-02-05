@@ -106,13 +106,8 @@ namespace elang::lang{
 
 		static void pointer(elang::common::operator_id op, operand_info &left, operand_info &right, bool is_boolean){
 			if (is_boolean){
-				if (!right.type->is_pointer())
-					throw common::error::lang_invalid_operation;
-
-				if (!left.type->is_pointer()){
-
-				}
-
+				if (left.type->score(*right.type) == ELANG_TYPE_INFO_MIN_SCORE && right.type->score(*left.type) == ELANG_TYPE_INFO_MIN_SCORE)
+					throw common::error::lang_invalid_operation;//Incompatible types
 				return boolean<__int64>(op, left, right);
 			}
 

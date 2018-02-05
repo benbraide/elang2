@@ -34,6 +34,10 @@ namespace elang::easm{
 			return true;
 		}
 
+		virtual void set_size(std::size_t size){
+			size_ = size;
+		}
+
 	protected:
 		ptr_type value_;
 		std::size_t size_;

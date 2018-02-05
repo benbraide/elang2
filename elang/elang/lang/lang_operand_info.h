@@ -9,14 +9,23 @@
 
 #include "../memory/memory_register.h"
 
-#include "../asm/asm_instruction_operand_object.h"
+#include "../asm/asm_immediate_instruction_operand.h"
+#include "../asm/asm_register_instruction_operand.h"
+#include "../asm/asm_label_instruction_operand.h"
+#include "../asm/asm_memory_instruction_operand.h"
+#include "../asm/asm_offset_instruction_operand.h"
 
 #include "lang_primitive_type_info.h"
 #include "lang_symbol_table.h"
 
 namespace elang::lang{
+	using memory_operand_value_start_type = std::variant<
+		unsigned __int64 **,
+		memory::memory_register *
+	>;
+
 	struct memory_operand_value_info{
-		std::string label;
+		memory_operand_value_start_type start;
 		__int64 offset;
 	};
 
@@ -24,7 +33,7 @@ namespace elang::lang{
 		common::constant_value,
 		__int64,
 		long double,
-		std::string,
+		unsigned __int64 **,
 		memory_operand_value_info,
 		memory::memory_register *,
 		easm::instruction_operand_object::ptr_type
@@ -86,6 +95,73 @@ namespace elang::lang{
 		template <typename value_type>
 		long double operator ()(const value_type &value) const{
 			throw common::error::lang_bad_operand;
+		}
+	};
+
+	struct get_asm_operand{
+		easm::instruction_operand_object::ptr_type operator ()(common::constant_value value) const{
+			switch (value){
+			case elang::common::constant_value::false_:
+				return std::make_shared<easm::immediate_instruction_operand<__int64>>(0);
+			case elang::common::constant_value::true_:
+				return std::make_shared<easm::immediate_instruction_operand<__int64>>(1);
+			case elang::common::constant_value::indeterminate:
+				return std::make_shared<easm::immediate_instruction_operand<__int64>>(-1);
+			case elang::common::constant_value::nullptr_:
+				return std::make_shared<easm::immediate_instruction_operand<__int64>>(0);
+			default:
+				break;
+			}
+
+			throw common::error::lang_bad_operand;
+
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(__int64 value) const{
+			return std::make_shared<easm::immediate_instruction_operand<__int64>>(value);
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(long double value) const{
+			return std::make_shared<easm::immediate_instruction_operand<long double>>(value);
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(unsigned __int64 **value) const{
+			return std::make_shared<easm::label_instruction_operand>(*value);
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(const memory_operand_value_info &value) const{
+			std::vector<easm::offset_instruction_operand::item_info> offset_list;
+			offset_list.reserve(2);
+
+			offset_list.push_back(easm::offset_instruction_operand::item_info{
+				byte_code::operand_info::offset_op_type::add,
+				std::visit(*this, value.start)
+			});
+
+			if (value.offset != 0){//Add offset
+				offset_list.push_back(easm::offset_instruction_operand::item_info{
+					byte_code::operand_info::offset_op_type::add,
+					std::make_shared<easm::immediate_instruction_operand<__int64>>(value.offset)
+				});
+			}
+
+			auto expr = std::make_shared<easm::offset_instruction_operand>(std::move(offset_list));
+			return std::make_shared<easm::memory_instruction_operand>(expr);
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(memory::memory_register *value) const{
+			return std::make_shared<easm::register_instruction_operand>(*value);
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(easm::instruction_operand_object::ptr_type value) const{
+			return value;
+		}
+
+		static easm::instruction_operand_object::ptr_type get(const operand_info &info){
+			auto value = std::visit(get_asm_operand(), info.value);
+			if (std::holds_alternative<memory_operand_value_info>(info.value))
+				dynamic_cast<easm::memory_instruction_operand *>(value.get())->set_size(info.type->size());
+			return value;
 		}
 	};
 }
