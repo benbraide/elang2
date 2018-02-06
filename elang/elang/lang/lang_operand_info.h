@@ -22,7 +22,7 @@
 namespace elang::lang{
 	using memory_operand_value_start_type = std::variant<
 		unsigned __int64 **,
-		memory::memory_register *
+		register_stack::item_ptr_type
 	>;
 
 	struct memory_operand_value_info{
