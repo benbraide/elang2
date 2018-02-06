@@ -10,6 +10,8 @@ namespace elang::lang{
 		static const type_info::ptr_type auto_type;
 		static const type_info::ptr_type void_type;
 		static const type_info::ptr_type bool_type;
+		static const type_info::ptr_type char_type;
+		static const type_info::ptr_type wchar_type;
 		static const type_info::ptr_type int8_type;
 		static const type_info::ptr_type int16_type;
 		static const type_info::ptr_type int32_type;

@@ -6,6 +6,10 @@ const elang::lang::type_info::ptr_type elang::lang::type_store::void_type = std:
 
 const elang::lang::type_info::ptr_type elang::lang::type_store::bool_type = std::make_shared<primitive_type_info>(primitive_type_info::id_type::bool_);
 
+const elang::lang::type_info::ptr_type elang::lang::type_store::char_type = std::make_shared<primitive_type_info>(primitive_type_info::id_type::char_);
+
+const elang::lang::type_info::ptr_type elang::lang::type_store::wchar_type = std::make_shared<primitive_type_info>(primitive_type_info::id_type::wchar_);
+
 const elang::lang::type_info::ptr_type elang::lang::type_store::int8_type = std::make_shared<primitive_type_info>(primitive_type_info::id_type::int8_);
 
 const elang::lang::type_info::ptr_type elang::lang::type_store::int16_type = std::make_shared<primitive_type_info>(primitive_type_info::id_type::int16_);

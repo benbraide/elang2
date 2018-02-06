@@ -47,6 +47,9 @@ namespace elang::common{
 		lang_ambiguous_call,
 		lang_division_by_zero,
 		lang_invalid_operation,
+		lang_number_too_small,
+		lang_number_too_big,
+		lang_bad_char,
 	};
 }
 
