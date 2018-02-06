@@ -1,9 +1,11 @@
 #include "lang_register_stack.h"
 
 elang::lang::register_stack::register_stack(){
-	integral_info_.index = float_info_.index = 0;
 	integral_info_.list.reserve(11);
+	integral_info_.used.reserve(11);
+
 	float_info_.list.reserve(8);
+	float_info_.used.reserve(8);
 
 	integral_info_.list.push_back(table_.find("rax"));
 	integral_info_.list.push_back(table_.find("rbx"));
@@ -28,30 +30,39 @@ elang::lang::register_stack::register_stack(){
 	float_info_.list.push_back(table_.find("xmm7"));
 }
 
-elang::memory::memory_register *elang::lang::register_stack::pop_integral(std::size_t size){
-	if (integral_info_.index < integral_info_.list.size()){
-		++integral_info_.index;
-		return (*std::next(integral_info_.list.begin(), (integral_info_.index - 1u)))->match(size);
+elang::lang::register_stack::item_ptr_type elang::lang::register_stack::pop_integral(std::size_t size){
+	return pop_(size, integral_info_);
+}
+
+elang::lang::register_stack::item_ptr_type elang::lang::register_stack::pop_float(std::size_t size){
+	return pop_(size, float_info_);
+}
+
+void elang::lang::register_stack::push(memory::memory_register &reg){
+	if (reg.is_floating_point())
+		push_(reg, float_info_);
+	else//Integral
+		push_(reg, integral_info_);
+}
+
+elang::lang::register_stack::item_ptr_type elang::lang::register_stack::pop_(std::size_t size, info &info){
+	if (integral_info_.list.empty())
+		throw common::error::lang_out_of_registers;
+
+	auto value = *integral_info_.list.begin();
+	if (size != 0u)
+		value = value->match(size);
+
+	integral_info_.used.push_back(*integral_info_.list.begin());
+	integral_info_.list.erase(integral_info_.list.begin());
+
+	return std::make_shared<item>(*this, *value);
+}
+
+void elang::lang::register_stack::push_(memory::memory_register &reg, info &info){
+	auto entry = std::find(info.used.begin(), info.used.end(), reg.match(sizeof(unsigned __int64)));
+	if (entry != info.used.end()){
+		info.list.push_back(*entry);
+		info.used.erase(entry);
 	}
-	
-	throw common::error::lang_out_of_registers;
-}
-
-elang::memory::memory_register *elang::lang::register_stack::pop_float(std::size_t size){
-	if (float_info_.index < float_info_.list.size()){
-		++float_info_.index;
-		return (*std::next(float_info_.list.begin(), (float_info_.index - 1u)))->match(size);
-	}
-
-	throw common::error::lang_out_of_registers;
-}
-
-void elang::lang::register_stack::push_integral(){
-	if (integral_info_.index > 0u)
-		--integral_info_.index;
-}
-
-void elang::lang::register_stack::push_float(){
-	if (float_info_.index > 0u)
-		--float_info_.index;
 }

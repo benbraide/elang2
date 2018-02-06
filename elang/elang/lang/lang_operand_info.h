@@ -17,6 +17,7 @@
 
 #include "lang_primitive_type_info.h"
 #include "lang_symbol_table.h"
+#include "lang_register_stack.h"
 
 namespace elang::lang{
 	using memory_operand_value_start_type = std::variant<
@@ -35,7 +36,7 @@ namespace elang::lang{
 		long double,
 		unsigned __int64 **,
 		memory_operand_value_info,
-		memory::memory_register *,
+		register_stack::item_ptr_type,
 		easm::instruction_operand_object::ptr_type
 	>;
 
@@ -149,8 +150,8 @@ namespace elang::lang{
 			return std::make_shared<easm::memory_instruction_operand>(expr);
 		}
 
-		easm::instruction_operand_object::ptr_type operator ()(memory::memory_register *value) const{
-			return std::make_shared<easm::register_instruction_operand>(*value);
+		easm::instruction_operand_object::ptr_type operator ()(register_stack::item_ptr_type value) const{
+			return std::make_shared<easm::register_instruction_operand>(value->value());
 		}
 
 		easm::instruction_operand_object::ptr_type operator ()(easm::instruction_operand_object::ptr_type value) const{

@@ -111,14 +111,24 @@ namespace elang::lang{
 				return boolean<__int64>(op, left, right);
 			}
 
-			if (!right.type->is_integral())
+			if (!left.type->is_integral() && !right.type->is_integral())
 				throw common::error::lang_invalid_operation;
+
+			if (left.type->is_null_pointer() || right.type->is_null_pointer())
+				throw common::error::lang_invalid_operation;
+
+			if (op == elang::common::operator_id::minus && left.type->is_integral())
+				throw common::error::lang_invalid_operation;
+
+			auto type = left.type;
+			if (left.type->is_integral())
+				type = right.type;
 
 			switch (op){
 			case elang::common::operator_id::plus:
-				return set_value(left, (get<__int64>(left.value) + (get<__int64>(right.value) * sizeof(void *))), left.type);
+				return set_value(left, (get<__int64>(left.value) + (get<__int64>(right.value) * sizeof(void *))), type);
 			case elang::common::operator_id::minus:
-				return set_value(left, (get<__int64>(left.value) - (get<__int64>(right.value) * sizeof(void *))), left.type);
+				return set_value(left, (get<__int64>(left.value) - (get<__int64>(right.value) * sizeof(void *))), type);
 			default:
 				break;
 			}
