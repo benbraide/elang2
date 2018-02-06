@@ -12,6 +12,8 @@ namespace elang::lang{
 
 		virtual ptr_type clone(attribute_type attributes) const override;
 
+		virtual ptr_type resolve_auto(const type_info &type, bool is_pointer = false) const override;
+
 		virtual std::size_t size() const override;
 
 		virtual std::string mangle_name() const override;

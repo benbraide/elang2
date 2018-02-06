@@ -8,6 +8,18 @@ elang::lang::type_info::ptr_type elang::lang::pointer_type_info::clone(attribute
 	return std::make_shared<pointer_type_info>(target_, attributes);
 }
 
+elang::lang::type_info::ptr_type elang::lang::pointer_type_info::resolve_auto(const type_info &type, bool is_pointer) const{
+	auto pointer_type = dynamic_cast<const pointer_type_info *>(&type);
+	if (pointer_type == nullptr)//Cannot be resolved
+		return nullptr;
+
+	auto target = target_->resolve_auto(*pointer_type->target_, true);
+	if (target == nullptr)//Target was not resolved
+		return nullptr;
+
+	return std::make_shared<pointer_type_info>(target, (is_pointer ? (pointer_type->attributes_ | attributes_) : attributes_));
+}
+
 std::size_t elang::lang::pointer_type_info::size() const{
 	return sizeof(void *);
 }

@@ -7,6 +7,10 @@ elang::lang::type_info::ptr_type elang::lang::type_info::reflect(){
 	return shared_from_this();
 }
 
+elang::lang::type_info::ptr_type elang::lang::type_info::resolve_auto(const type_info &type, bool is_pointer) const{
+	return type.clone(is_pointer ? (type.attributes_ | attributes_) : attributes_);
+}
+
 elang::lang::type_info::attribute_type elang::lang::type_info::attributes() const{
 	return attributes_;
 }

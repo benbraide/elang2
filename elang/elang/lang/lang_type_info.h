@@ -34,6 +34,8 @@ namespace elang::lang{
 
 		virtual ptr_type clone(attribute_type attributes) const = 0;
 
+		virtual ptr_type resolve_auto(const type_info &type, bool is_pointer = false) const;
+
 		virtual attribute_type attributes() const;
 
 		virtual type_symbol_table_ptr_type symbol_table() const;
