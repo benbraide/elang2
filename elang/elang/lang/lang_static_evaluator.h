@@ -13,7 +13,8 @@ namespace elang::lang{
 		template <typename value_type>
 		static void set_value(operand_info &info, value_type value, type_info::ptr_type type){
 			info.type = type;
-			info.value = value;
+			if (thread_info::decltype_count == 0u)
+				info.value = value;
 		}
 
 		static void set_boolean_value(operand_info &info, bool value){
@@ -39,13 +40,18 @@ namespace elang::lang{
 		template <typename target_type>
 		static target_type get_non_zero(const operand_value_type &info){
 			auto value = get(info);
-			if (value == static_cast<target_type>(0))
+			if (thread_info::decltype_count == 0 && value == static_cast<target_type>(0))
 				throw common::error::lang_division_by_zero;
 			return value;
 		}
 
 		template <typename target_type>
 		static void boolean(common::operator_id op, operand_info &left, operand_info &right){
+			if (thread_info::decltype_count > 0u){//Don't evaluate
+				left.type = type_store::bool_type;
+				return;
+			}
+
 			switch (op){
 			case common::operator_id::less_or_equal:
 				return set_boolean_value(left, (get<target_type>(left.value) <= get<target_type>(right.value)));
@@ -68,6 +74,38 @@ namespace elang::lang{
 		static void numeric(common::operator_id op, operand_info &left, operand_info &right, bool is_boolean){
 			if (is_boolean)
 				return boolean<__int64>(op, left, right);
+
+			if (thread_info::decltype_count > 0u){//Don't evaluate
+				auto left_primitive_type_id = dynamic_cast<primitive_type_info *>(left.type.get())->id();
+				auto right_primitive_type_id = dynamic_cast<primitive_type_info *>(right.type.get())->id();
+
+				left.type = ((left_primitive_type_id < right_primitive_type_id) ? right.type : left.type);
+				switch (op){
+				case common::operator_id::plus:
+				case common::operator_id::minus:
+				case common::operator_id::times:
+				case common::operator_id::divide:
+					return;
+				default:
+					break;
+				}
+
+				if (std::is_integral_v<target_type>){
+					switch (op){
+					case common::operator_id::modulus:
+					case common::operator_id::left_shift:
+					case common::operator_id::right_shift:
+					case common::operator_id::bitwise_and:
+					case common::operator_id::bitwise_xor:
+					case common::operator_id::bitwise_or:
+						return;
+					default:
+						break;
+					}
+				}
+
+				throw common::error::lang_invalid_operation;
+			}
 
 			switch (op){
 			case common::operator_id::plus:
