@@ -32,7 +32,6 @@ namespace elang::lang{
 
 	using operand_value_type = std::variant<
 		common::constant_value,
-		char,
 		__int64,
 		long double,
 		unsigned __int64 **,
@@ -68,10 +67,6 @@ namespace elang::lang{
 
 			throw common::error::lang_bad_operand;
 
-		}
-
-		__int64 operator ()(char value) const{
-			return static_cast<__int64>(value);
 		}
 
 		__int64 operator ()(__int64 value) const{

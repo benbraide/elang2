@@ -112,11 +112,11 @@ namespace elang::grammar{
 				value->type = lang::type_store::char_type;
 
 			std::string escaped_value;
-			common::utils::escape_string(ast.second, escaped_value);
+			common::utils::escape_string(ast.second, escaped_value, ast.first.is_initialized());
 
 			if (escaped_value.size() == value->type->size()){
 				if (value->type->is_char())
-					value->value = escaped_value[0];
+					value->value = static_cast<__int64>(escaped_value[0]);
 				else//Wide
 					value->value = static_cast<__int64>(*reinterpret_cast<__int16 *>(escaped_value.data()));
 			}

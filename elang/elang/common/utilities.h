@@ -10,6 +10,9 @@ namespace elang::common{
 	public:
 		template <typename iterator_type>
 		static void escape_string(iterator_type begin, iterator_type end, std::string &escaped, bool is_wide = false){
+			if (begin == end)//Empty buffer
+				return;
+
 			escaped.reserve(escaped.size() + (std::distance(begin, end) * (is_wide ? sizeof(wchar_t) : sizeof(char))));
 			for (; begin != end;)//Accumulate
 				escape_char(begin, end, escaped, is_wide);
