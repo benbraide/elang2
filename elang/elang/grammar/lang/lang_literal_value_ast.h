@@ -134,8 +134,8 @@ namespace elang::grammar{
 				value->type = lang::type_store::char_type->clone(lang::type_info::attribute_type::const_);
 
 			std::string escaped_value;
+			ast.second.push_back('\0');
 			common::utils::escape_string(ast.second, escaped_value, ast.first.is_initialized());
-			escaped_value.push_back('\0');
 
 			auto label = lang::thread_info::lbl_store.generate(lang::label_store::target_type::constant);
 			std::vector<easm::instruction_operand_object::ptr_type> operands({

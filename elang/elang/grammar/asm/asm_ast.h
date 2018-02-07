@@ -3,6 +3,8 @@
 #ifndef ELANG_ASM_AST_H
 #define ELANG_ASM_AST_H
 
+#include "../../common/utilities.h"
+
 #include "../../asm/asm_immediate_instruction_operand.h"
 #include "../../asm/asm_label_instruction_operand.h"
 #include "../../asm/asm_memory_instruction_operand.h"
@@ -254,7 +256,9 @@ namespace elang::grammar{
 		}
 
 		std::shared_ptr<elang::easm::instruction_operand_object> operator ()(ELANG_AST_NAME(asm_string) &ast) const{
-			return std::make_shared<elang::easm::string_instruction_operand>(std::move(ast.value));
+			std::string escaped;
+			common::utils::escape_string(ast.value, escaped, false);
+			return std::make_shared<elang::easm::string_instruction_operand>(std::move(escaped));
 		}
 
 		std::shared_ptr<elang::easm::instruction_operand_object> operator ()(ELANG_AST_NAME(asm_offset_explicit) &ast) const{

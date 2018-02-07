@@ -124,7 +124,7 @@ bool elang::lang::primitive_type_info::is_char() const{
 	return (id_ == id_type::char_);
 }
 
-bool elang::lang::primitive_type_info::is_char() const{
+bool elang::lang::primitive_type_info::is_wchar() const{
 	return (id_ == id_type::wchar_);
 }
 
