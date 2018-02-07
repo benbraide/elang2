@@ -5,6 +5,7 @@
 
 #include <list>
 
+#include "../asm/asm_string_instruction_operand.h"
 #include "../asm/asm_mov_instruction.h"
 #include "../asm/asm_cnvt_instruction.h"
 
@@ -36,9 +37,13 @@ namespace elang::lang{
 				else//No conversion needed
 					info.value = operand;
 			}
-			else if (type.is_integral() || type.is_null_pointer() || type.is_pointer()){
+			else if (type.is_integral() || type.is_null_pointer() || type.is_pointer() || type.is_wchar()){
 				operand = std::make_shared<easm::immediate_instruction_operand<__int64>>(
 					std::visit(get_operand_value<__int64>(), info.value));
+			}
+			else if (type.is_char()){
+				std::string value(1, std::get<char>(info.value));
+				operand = std::make_shared<easm::string_instruction_operand>(std::move(value));
 			}
 			else if (type.is_float()){
 				operand = std::make_shared<easm::immediate_instruction_operand<long double>>(

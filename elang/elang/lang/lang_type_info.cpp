@@ -72,6 +72,14 @@ bool elang::lang::type_info::is_bool() const{
 	return false;
 }
 
+bool elang::lang::type_info::is_char() const{
+	return false;
+}
+
+bool elang::lang::type_info::is_wchar() const{
+	return false;
+}
+
 bool elang::lang::type_info::is_numeric() const{
 	return false;
 }

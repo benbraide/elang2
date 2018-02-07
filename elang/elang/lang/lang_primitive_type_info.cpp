@@ -120,6 +120,14 @@ bool elang::lang::primitive_type_info::is_bool() const{
 	return (id_ == id_type::bool_);
 }
 
+bool elang::lang::primitive_type_info::is_char() const{
+	return (id_ == id_type::char_);
+}
+
+bool elang::lang::primitive_type_info::is_char() const{
+	return (id_ == id_type::wchar_);
+}
+
 bool elang::lang::primitive_type_info::is_numeric() const{
 	switch (id_){
 	case id_type::int8_:

@@ -38,6 +38,10 @@ namespace elang::lang{
 					else//Float
 						static_evaluator::numeric<long double>(op, left, right, is_boolean);
 				}
+				else if (left.type->is_char() && right.type->is_char())
+					static_evaluator::numeric<__int64>(op, left, right, is_boolean);
+				else if (left.type->is_wchar() && right.type->is_wchar())
+					static_evaluator::numeric<__int64>(op, left, right, is_boolean);
 				else if (left.type->is_pointer() || left.type->is_null_pointer() || right.type->is_pointer() || right.type->is_null_pointer())
 					static_evaluator::pointer(op, left, right, is_boolean);
 				else//Error
@@ -46,6 +50,10 @@ namespace elang::lang{
 				return;//Handled
 			}
 			else if (left.type->is_numeric() && right.type->is_numeric())
+				numeric(op, left, right, is_boolean);
+			else if (left.type->is_char() && right.type->is_char())
+				numeric(op, left, right, is_boolean);
+			else if (left.type->is_wchar() && right.type->is_wchar())
 				numeric(op, left, right, is_boolean);
 			else if (left.type->is_pointer() || left.type->is_null_pointer() || right.type->is_pointer() || right.type->is_null_pointer())
 				pointer(op, left, right, is_boolean);

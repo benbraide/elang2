@@ -46,6 +46,10 @@ namespace elang::lang{
 
 		virtual bool is_bool() const override;
 
+		virtual bool is_char() const override;
+
+		virtual bool is_wchar() const override;
+
 		virtual bool is_numeric() const override;
 
 		virtual bool is_integral() const override;

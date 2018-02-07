@@ -68,6 +68,10 @@ namespace elang::lang{
 
 		virtual bool is_bool() const;
 
+		virtual bool is_char() const;
+
+		virtual bool is_wchar() const;
+
 		virtual bool is_numeric() const;
 
 		virtual bool is_integral() const;

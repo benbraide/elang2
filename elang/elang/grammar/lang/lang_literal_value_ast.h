@@ -7,9 +7,13 @@
 
 #include "../../common/utilities.h"
 
+#include "../../asm/asm_string_instruction_operand.h"
+#include "../../asm/asm_decl_instruction.h"
+
 #include "../../lang/lang_pointer_type_info.h"
 #include "../../lang/lang_type_store.h"
 #include "../../lang/lang_operand_info.h"
+#include "../../lang/lang_thread_info.h"
 
 #include "../ast.h"
 
@@ -111,7 +115,7 @@ namespace elang::grammar{
 			common::utils::escape_string(ast.second, escaped_value);
 
 			if (escaped_value.size() == value->type->size()){
-				if (value->type == lang::type_store::char_type)
+				if (value->type->is_char())
 					value->value = escaped_value[0];
 				else//Wide
 					value->value = static_cast<__int64>(*reinterpret_cast<__int16 *>(escaped_value.data()));
@@ -125,16 +129,24 @@ namespace elang::grammar{
 		std::shared_ptr<lang::operand_info> operator ()(ELANG_AST_NAME(lang_string_literal_value) &ast) const{
 			auto value = std::make_shared<lang::operand_info>();
 			if (ast.first.is_initialized())
-				value->type = lang::type_store::wchar_type;
+				value->type = lang::type_store::wchar_type->clone(lang::type_info::attribute_type::const_);
 			else//Narrow
-				value->type = lang::type_store::char_type;
+				value->type = lang::type_store::char_type->clone(lang::type_info::attribute_type::const_);
 
 			std::string escaped_value;
-			common::utils::escape_string(ast.second, escaped_value);
-
+			common::utils::escape_string(ast.second, escaped_value, ast.first.is_initialized());
 			escaped_value.push_back('\0');
 
-			value->is_primitive_constant = true;
+			auto label = lang::thread_info::lbl_store.generate(lang::label_store::target_type::constant);
+			std::vector<easm::instruction_operand_object::ptr_type> operands({
+				std::make_shared<easm::string_instruction_operand>(std::move(escaped_value))
+			});
+
+			lang::thread_info::add(easm::section_id::rodata, label);
+			lang::thread_info::add(easm::section_id::rodata, std::make_shared<easm::db_instruction>(std::move(operands)));
+
+			value->value = &lang::thread_info::ins_table.find_label(label);
+			value->type = std::make_shared<lang::pointer_type_info>(value->type, lang::type_info::attribute_type::nil);
 
 			return value;
 		}
