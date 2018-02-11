@@ -35,12 +35,17 @@ namespace elang::grammar{
 	ELANG_AST_DECLARE_PAIR(lang_char_literal_value, boost::optional<char>, std::string)
 	ELANG_AST_DECLARE_PAIR(lang_string_literal_value, boost::optional<char>, std::string)
 
+	ELANG_AST_DECLARE_PAIR(lang_non_escaped_char_literal_value, boost::optional<char>, std::string)
+	ELANG_AST_DECLARE_PAIR(lang_non_escaped_string_literal_value, boost::optional<char>, std::string)
+
 	ELANG_AST_DECLARE_SINGLE_VARIANT(
 		lang_literal_value,
 		ELANG_AST_NAME(lang_integer_literal_value),
 		ELANG_AST_NAME(lang_float_literal_value),
 		ELANG_AST_NAME(lang_char_literal_value),
-		ELANG_AST_NAME(lang_string_literal_value)
+		ELANG_AST_NAME(lang_string_literal_value),
+		ELANG_AST_NAME(lang_non_escaped_char_literal_value),
+		ELANG_AST_NAME(lang_non_escaped_string_literal_value)
 	)
 
 	struct lang_constant_value_ast_visitor{
@@ -150,12 +155,60 @@ namespace elang::grammar{
 
 			return value;
 		}
+
+		std::shared_ptr<lang::operand_info> operator ()(ELANG_AST_NAME(lang_non_escaped_char_literal_value) &ast) const{
+			auto value = std::make_shared<lang::operand_info>();
+			if (ast.first.is_initialized())
+				value->type = lang::type_store::wchar_type;
+			else//Narrow
+				value->type = lang::type_store::char_type;
+
+			if (ast.second.size() == value->type->size()){
+				if (value->type->is_char())
+					value->value = static_cast<__int64>(ast.second[0]);
+				else//Wide
+					value->value = static_cast<__int64>(*reinterpret_cast<__int16 *>(ast.second.data()));
+			}
+			else//Error
+				throw common::error::lang_bad_char;
+
+			value->is_primitive_constant = true;
+		}
+
+		std::shared_ptr<lang::operand_info> operator ()(ELANG_AST_NAME(lang_non_escaped_string_literal_value) &ast) const{
+			auto value = std::make_shared<lang::operand_info>();
+			if (ast.first.is_initialized()){
+				value->type = lang::type_store::wchar_type->clone(lang::type_info::attribute_type::const_);
+				ast.second.append("\\0\\0");
+			}
+			else{//Narrow
+				value->type = lang::type_store::char_type->clone(lang::type_info::attribute_type::const_);
+				ast.second.append("\\0");
+			}
+
+			auto label = lang::thread_info::lbl_store.generate(lang::label_store::target_type::constant);
+			std::vector<easm::instruction_operand_object::ptr_type> operands({
+				std::make_shared<easm::string_instruction_operand>(std::move(ast.second))
+			});
+
+			lang::thread_info::add(easm::section_id::rodata, label);
+			lang::thread_info::add(easm::section_id::rodata, std::make_shared<easm::db_instruction>(std::move(operands)));
+
+			value->value = &lang::thread_info::ins_table.find_label(label);
+			value->type = std::make_shared<lang::pointer_type_info>(value->type, lang::type_info::attribute_type::nil);
+
+			return value;
+		}
 	};
 }
 
 ELANG_AST_ADAPT_PAIR(lang_integer_literal_value)
 ELANG_AST_ADAPT_SINGLE(lang_float_literal_value)
+
 ELANG_AST_ADAPT_PAIR(lang_char_literal_value)
 ELANG_AST_ADAPT_PAIR(lang_string_literal_value)
+
+ELANG_AST_ADAPT_PAIR(lang_non_escaped_char_literal_value)
+ELANG_AST_ADAPT_PAIR(lang_non_escaped_string_literal_value)
 
 #endif /* !ELANG_LANG_LITERAL_VALUE_AST_H */

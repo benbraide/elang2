@@ -220,11 +220,11 @@ namespace elang::grammar{
 	ELANG_GRAMMAR_RULE_DEF(asm_uninitialized_value) = x3::char_('?');
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_float_value)
-	ELANG_GRAMMAR_RULE_DEF(asm_float_value) = long_double_;
+	ELANG_GRAMMAR_RULE_DEF(asm_float_value) = elang_long_double;
 
-	hex_parser<__int64> const asm_long_long_hex = {};
-	oct_parser<__int64> const asm_long_long_oct = {};
-	bin_parser<__int64> const asm_long_long_bin = {};
+	elang_hex_parser<__int64> const asm_long_long_hex = {};
+	elang_oct_parser<__int64> const asm_long_long_oct = {};
+	elang_bin_parser<__int64> const asm_long_long_bin = {};
 
 	ELANG_GRAMMAR_DECLARE_RULE(asm_integral_value)
 	ELANG_GRAMMAR_RULE_DEF(asm_integral_value) = (

@@ -11,10 +11,10 @@ namespace elang::grammar{
 	struct lang_constant_value_symbols : x3::symbols<common::constant_value>{
 		lang_constant_value_symbols(){
 			add
-				("false", elang::common::constant_value::false_)
-				("true", elang::common::constant_value::true_)
-				("#ind", elang::common::constant_value::indeterminate)
-				("nullptr", elang::common::constant_value::nullptr_)
+				("false", common::constant_value::false_)
+				("true", common::constant_value::true_)
+				("#ind", common::constant_value::indeterminate)
+				("nullptr", common::constant_value::nullptr_)
 				;
 		}
 	} lang_constant_value_symbols_;

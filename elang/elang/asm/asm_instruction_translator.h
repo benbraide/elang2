@@ -118,7 +118,7 @@ namespace elang::easm{
 				instruction_set
 			);
 
-			if (!result)
+			if (!result || start != end)
 				throw common::error::asm_parse_error;
 		}
 	};
