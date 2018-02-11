@@ -75,6 +75,29 @@ void elang::lang::symbol_table::add(const function_entry_info &function){
 	}
 }
 
+void elang::lang::symbol_table::add(const operator_entry_info &function){
+	if (std::holds_alternative<common::operator_id>(function.key)){
+		auto entry = symbol_operator_map_.find(std::get<common::operator_id>(function.key));
+		if (entry == symbol_operator_map_.end()){//New entry
+			auto &non_table = symbol_operator_map_[std::get<common::operator_id>(function.key)];
+			non_table = operator_list_entry_info{};
+			add_operator_(non_table, function);
+		}
+		else//Update existing
+			add_operator_(entry->second, function);
+	}
+	else{//Type operator
+		auto entry = type_operator_map_.find(std::get<symbol_table *>(function.key));
+		if (entry == type_operator_map_.end()){//New entry
+			auto &non_table = type_operator_map_[std::get<symbol_table *>(function.key)];
+			non_table = operator_list_entry_info{};
+			add_operator_(non_table, function);
+		}
+		else//Update existing
+			add_operator_(entry->second, function);
+	}
+}
+
 void elang::lang::symbol_table::add_namespace(const std::string &name, entry_attribute_type attributes){
 	add(std::make_shared<symbol_table>(name, this, attributes));
 }
@@ -93,8 +116,47 @@ void elang::lang::symbol_table::add_function(const std::string &name, type_info:
 	}
 
 	function_entry_info info;
+	info.parent = this;
 	info.attributes = attributes;
 	info.name = name;
+	info.type = std::make_shared<function_type_info>(return_type, std::move(parameter_types));
+	info.parameters = std::move(parameters);
+
+	add(info);
+}
+
+void elang::lang::symbol_table::add_operator(common::operator_id key, type_info::ptr_type return_type,
+	std::vector<variable_entry_info> &&parameters, entry_attribute_type attributes){
+	std::vector<type_info::ptr_type> parameter_types;
+	if (!parameters.empty()){
+		parameter_types.reserve(parameters.size());
+		for (auto &parameter : parameters)
+			parameter_types.push_back(parameter.type);
+	}
+
+	operator_entry_info info;
+	info.parent = this;
+	info.attributes = attributes;
+	info.key = key;
+	info.type = std::make_shared<function_type_info>(return_type, std::move(parameter_types));
+	info.parameters = std::move(parameters);
+
+	add(info);
+}
+
+void elang::lang::symbol_table::add_operator(symbol_table *key, type_info::ptr_type return_type,
+	std::vector<variable_entry_info> &&parameters, entry_attribute_type attributes){
+	std::vector<type_info::ptr_type> parameter_types;
+	if (!parameters.empty()){
+		parameter_types.reserve(parameters.size());
+		for (auto &parameter : parameters)
+			parameter_types.push_back(parameter.type);
+	}
+
+	operator_entry_info info;
+	info.parent = this;
+	info.attributes = attributes;
+	info.key = key;
 	info.type = std::make_shared<function_type_info>(return_type, std::move(parameter_types));
 	info.parameters = std::move(parameters);
 
@@ -138,6 +200,16 @@ elang::lang::symbol_table::function_list_entry_info *elang::lang::symbol_table::
 		return nullptr;//Not found or not a function
 
 	return &std::get<function_list_entry_info>(*non_table);
+}
+
+elang::lang::symbol_table::operator_list_entry_info *elang::lang::symbol_table::find_operator(common::operator_id key) const{
+	auto entry = symbol_operator_map_.find(key);
+	return ((entry == symbol_operator_map_.end()) ? nullptr : const_cast<operator_list_entry_info *>(&entry->second));
+}
+
+elang::lang::symbol_table::operator_list_entry_info *elang::lang::symbol_table::find_operator(symbol_table *key) const{
+	auto entry = type_operator_map_.find(key);
+	return ((entry == type_operator_map_.end()) ? nullptr : const_cast<operator_list_entry_info *>(&entry->second));
 }
 
 unsigned __int64 elang::lang::symbol_table::compute_offset(const symbol_table &table) const{
@@ -196,6 +268,14 @@ elang::lang::symbol_table::function_entry_info *elang::lang::symbol_table::match
 }
 
 void elang::lang::symbol_table::add_function_(function_list_entry_info &list, const function_entry_info &info){
+	auto key = dynamic_cast<function_type_info *>(info.type.get())->mangle_parameters();
+	if (list.list.find(key) == list.list.end())
+		list.list[key] = info;
+	else//Error
+		throw common::error::lang_symbol_exists;
+}
+
+void elang::lang::symbol_table::add_operator_(operator_list_entry_info &list, const operator_entry_info &info){
 	auto key = dynamic_cast<function_type_info *>(info.type.get())->mangle_parameters();
 	if (list.list.find(key) == list.list.end())
 		list.list[key] = info;

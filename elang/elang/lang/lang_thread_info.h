@@ -7,6 +7,7 @@
 
 #include "lang_register_stack.h"
 #include "lang_label_store.h"
+#include "lang_symbol_table.h"
 
 namespace elang::lang{
 	struct thread_info{
@@ -22,6 +23,8 @@ namespace elang::lang{
 		static thread_local label_store lbl_store;
 		static thread_local easm::instruction_table ins_table;
 		static thread_local unsigned int decltype_count;
+
+		static thread_local symbol_table sym_table;
 	};
 }
 

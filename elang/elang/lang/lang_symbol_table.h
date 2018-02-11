@@ -8,6 +8,8 @@
 #include <variant>
 #include <unordered_map>
 
+#include "../common/operator_id.h"
+
 #include "lang_function_type_info.h"
 
 namespace elang::lang{
@@ -39,6 +41,19 @@ namespace elang::lang{
 		};
 
 		typedef std::variant<variable_entry_info, function_list_entry_info> non_table_type;
+		typedef std::variant<common::operator_id, symbol_table *> operator_key_type;
+
+		struct operator_entry_info{
+			symbol_table *parent;
+			entry_attribute_type attributes;
+			type_info::ptr_type type;
+			operator_key_type key;
+			std::vector<variable_entry_info> parameters;
+		};
+
+		struct operator_list_entry_info{
+			std::unordered_map<std::string, operator_entry_info> list;
+		};
 
 		struct non_table_entry_info{
 			bool holds_value;
@@ -52,6 +67,9 @@ namespace elang::lang{
 
 		typedef std::unordered_map<std::string, entry_info> map_type;
 		typedef std::list<variable_entry_info *> variable_list_type;
+
+		typedef std::unordered_map<common::operator_id, operator_list_entry_info> symbol_operator_map_type;
+		typedef std::unordered_map<symbol_table *, operator_list_entry_info> type_operator_map_type;
 
 		symbol_table(const std::string &name, symbol_table *parent, entry_attribute_type attributes = entry_attribute_type::nil);
 
@@ -71,11 +89,19 @@ namespace elang::lang{
 
 		virtual void add(const function_entry_info &function);
 
+		virtual void add(const operator_entry_info &function);
+
 		virtual void add_namespace(const std::string &name, entry_attribute_type attributes = entry_attribute_type::nil);
 
 		virtual void add_variable(const std::string &name, type_info::ptr_type type, entry_attribute_type attributes = entry_attribute_type::nil);
 
 		virtual void add_function(const std::string &name, type_info::ptr_type return_type, std::vector<variable_entry_info> &&parameters,
+			entry_attribute_type attributes = entry_attribute_type::nil);
+
+		virtual void add_operator(common::operator_id key, type_info::ptr_type return_type, std::vector<variable_entry_info> &&parameters,
+			entry_attribute_type attributes = entry_attribute_type::nil);
+
+		virtual void add_operator(symbol_table *key, type_info::ptr_type return_type, std::vector<variable_entry_info> &&parameters,
 			entry_attribute_type attributes = entry_attribute_type::nil);
 
 		virtual entry_info *find(const std::string &name) const;
@@ -89,6 +115,10 @@ namespace elang::lang{
 		virtual variable_entry_info *find_variable(const std::string &name) const;
 
 		virtual function_list_entry_info *find_function(const std::string &name) const;
+
+		virtual operator_list_entry_info *find_operator(common::operator_id key) const;
+
+		virtual operator_list_entry_info *find_operator(symbol_table *key) const;
 
 		virtual unsigned __int64 compute_offset(const symbol_table &table) const;
 
@@ -104,11 +134,15 @@ namespace elang::lang{
 	protected:
 		virtual void add_function_(function_list_entry_info &list, const function_entry_info &info);
 
+		virtual void add_operator_(operator_list_entry_info &list, const operator_entry_info &info);
+
 		std::string name_;
 		symbol_table *parent_;
 		entry_attribute_type attributes_;
 		map_type map_;
 		variable_list_type order_list_;
+		symbol_operator_map_type symbol_operator_map_;
+		type_operator_map_type type_operator_map_;
 	};
 
 	ELANG_MAKE_OPERATORS(symbol_table::entry_attribute_type)

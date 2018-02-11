@@ -1,0 +1,8 @@
+#pragma once
+
+#ifndef ELANG_LANG_IDENTIFIER_AST_H
+#define ELANG_LANG_IDENTIFIER_AST_H
+
+
+
+#endif /* !ELANG_LANG_IDENTIFIER_AST_H */
