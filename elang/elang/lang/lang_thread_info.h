@@ -25,6 +25,8 @@ namespace elang::lang{
 		static thread_local unsigned int decltype_count;
 
 		static thread_local symbol_table sym_table;
+		static thread_local symbol_table *context;
+		static thread_local symbol_table *search_context;
 	};
 }
 

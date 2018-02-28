@@ -9,3 +9,7 @@ thread_local elang::easm::instruction_table elang::lang::thread_info::ins_table;
 thread_local unsigned int elang::lang::thread_info::decltype_count = 0;
 
 thread_local elang::lang::symbol_table elang::lang::thread_info::sym_table("", nullptr);
+
+thread_local elang::lang::symbol_table *elang::lang::thread_info::context = nullptr;
+
+thread_local elang::lang::symbol_table *elang::lang::thread_info::search_context = nullptr;

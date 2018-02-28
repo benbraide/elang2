@@ -37,6 +37,9 @@ namespace elang::lang{
 		unsigned __int64 **,
 		memory_operand_value_info,
 		register_stack::item_ptr_type,
+		symbol_table::entry_info *,
+		symbol_table::variable_entry_info *,
+		symbol_table::operator_list_entry_info *,
 		easm::instruction_operand_object::ptr_type
 	>;
 
@@ -77,6 +80,16 @@ namespace elang::lang{
 			return static_cast<__int64>(value);
 		}
 
+		__int64 operator ()(const symbol_table::variable_entry_info *value) const{
+			if (!value->value.has_value())
+				throw common::error::lang_bad_operand;
+
+			if (std::holds_alternative<__int64>(value->value.value()))
+				return std::get<__int64>(value->value.value());
+
+			return static_cast<__int64>(std::get<long double>(value->value.value()));
+		}
+
 		template <typename value_type>
 		__int64 operator ()(const value_type &value) const{
 			throw common::error::lang_bad_operand;
@@ -91,6 +104,16 @@ namespace elang::lang{
 
 		long double operator ()(long double value) const{
 			return value;
+		}
+
+		long double operator ()(const symbol_table::variable_entry_info *value) const{
+			if (!value->value.has_value())
+				throw common::error::lang_bad_operand;
+
+			if (std::holds_alternative<__int64>(value->value.value()))
+				return static_cast<long double>(std::get<__int64>(value->value.value()));
+
+			return std::get<long double>(value->value.value());
 		}
 
 		template <typename value_type>
@@ -152,6 +175,18 @@ namespace elang::lang{
 
 		easm::instruction_operand_object::ptr_type operator ()(register_stack::item_ptr_type value) const{
 			return std::make_shared<easm::register_instruction_operand>(value->value());
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(symbol_table::entry_info *value) const{
+			return nullptr;
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(symbol_table::variable_entry_info *value) const{
+			return nullptr;
+		}
+
+		easm::instruction_operand_object::ptr_type operator ()(symbol_table::operator_list_entry_info *value) const{
+			return nullptr;
 		}
 
 		easm::instruction_operand_object::ptr_type operator ()(easm::instruction_operand_object::ptr_type value) const{

@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <variant>
+#include <optional>
 #include <unordered_map>
 
 #include "../common/operator_id.h"
@@ -30,6 +31,7 @@ namespace elang::lang{
 			entry_attribute_type attributes;
 			type_info::ptr_type type;
 			std::string name;
+			std::optional<std::variant<__int64, long double>> value;
 		};
 
 		struct function_entry_info : variable_entry_info{

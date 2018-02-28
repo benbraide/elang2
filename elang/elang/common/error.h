@@ -42,6 +42,8 @@ namespace elang::common{
 		lang_bad_type,
 		lang_bad_base_type,
 		lang_symbol_exists,
+		lang_symbol_not_found,
+		lang_non_variable_symbol,
 		lang_base_type_exists,
 		lang_unmatched_call,
 		lang_ambiguous_call,
